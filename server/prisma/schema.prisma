@@ -1,0 +1,178 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum Role {
+  CLIENT
+  COMMERCIAL
+  CHEF_ATELIER
+  ADMIN
+}
+
+enum Marque {
+  VOLKSWAGEN
+  AUDI
+  SKODA
+}
+
+enum StatutVehicule {
+  DISPONIBLE
+  VENDU
+  EN_REVISION
+}
+
+enum StatutRendezVous {
+  EN_ATTENTE
+  CONFIRME
+  REFUSE
+  ANNULE
+  TERMINE
+}
+
+enum StatutTestDrive {
+  EN_ATTENTE
+  APPROUVE
+  REFUSE
+  EFFECTUE
+}
+
+enum TypeNotification {
+  RDV
+  TEST_DRIVE
+  ENTRETIEN
+  INFO
+}
+
+enum StatutPlageBloquee {
+  PREVUE
+  ACTIVE
+  TERMINEE
+  ANNULEE
+}
+
+// Models
+model User {
+  id            String    @id @default(uuid())
+  nom           String
+  prenom        String
+  email         String    @unique
+  telephone     String
+  motDePasse    String
+  role          Role      @default(CLIENT)
+  actif         Boolean   @default(true)
+  fcmToken      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  rendezVous         RendezVous[]
+  testDrives         TestDrive[]
+  entretienHistoriques EntretienHistorique[]
+  notifications      Notification[]
+  plagesBloquees     PlageBloquee[] @relation("CreeParUser")
+  valideParTestDrives TestDrive[]          @relation("ValideParUser")
+}
+
+model Vehicule {
+  id            String       @id @default(uuid())
+  marque        Marque
+  modele        String
+  annee         Int
+  prix          Decimal       @db.Decimal(10, 2)
+  prixPromo     Decimal?      @db.Decimal(10, 2)
+  kilometrage   Int
+  carburant     String
+  transmission  String
+  description   String
+  statut        StatutVehicule @default(DISPONIBLE)
+  images        Json
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+    testDrives   TestDrive[]
+  entretiens   EntretienHistorique[]
+}
+
+model RendezVous {
+  id             String         @id @default(uuid())
+  clientId       String
+  dateHeure      DateTime
+  motif          String
+  notes          String?
+  statut         StatutRendezVous @default(EN_ATTENTE)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  // Relations
+  client         User         @relation(fields: [clientId], references: [id])
+}
+
+model TestDrive {
+  id             String       @id @default(uuid())
+  clientId       String
+  vehiculeId     String
+  dateHeure      DateTime
+  statut         StatutTestDrive @default(EN_ATTENTE)
+  notes          String?
+  valideParId    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  // Relations
+  client         User         @relation(fields: [clientId], references: [id])
+  vehicule       Vehicule   @relation(fields: [vehiculeId], references: [id])
+  validePar      User?       @relation("ValideParUser", fields: [valideParId], references: [id])
+}
+
+model EntretienHistorique {
+  id              String         @id @default(uuid())
+  clientId        String
+  vehiculeId      String?
+  immatriculation  String
+  typeService     String
+  description     String
+  dateService     DateTime
+  kilometrageService Int
+  prochainVideange Int
+  prochainControle DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  client         User         @relation(fields: [clientId], references: [id])
+  vehicule       Vehicule?   @relation(fields: [vehiculeId], references: [id])
+}
+
+model Notification {
+  id        String          @id @default(uuid())
+  userId    String
+  titre     String
+  message   String
+  type      TypeNotification
+  lue       Boolean        @default(false)
+  lienAction String?
+  createdAt DateTime        @default(now())
+
+  // Relations
+  user      User            @relation(fields: [userId], references: [id])
+}
+
+model PlageBloquee {
+  id         String          @id @default(uuid())
+  debut      DateTime
+  fin        DateTime
+  motif      String?
+  creeParId  String
+  createdAt  DateTime       @default(now())
+  statut     StatutPlageBloquee @default(PREVUE)
+
+  // Relations
+  creePar    User            @relation("CreeParUser", fields: [creeParId], references: [id])
+}
