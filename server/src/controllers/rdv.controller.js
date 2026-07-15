@@ -20,7 +20,7 @@ async function creerRdv(req, res) {
       return response(res, false, {}, 'Validation échouée', 400);
     }
 
-    const { clientId, dateHeure, motif } = req.body;
+    const { clientId, dateHeure, motif, notes } = req.body;
     const userId = req.user.userId;
 
     // Vérifier que l'utilisateur est bien le CLIENT
@@ -33,6 +33,7 @@ async function creerRdv(req, res) {
         clientId,
         dateHeure: new Date(dateHeure),
         motif,
+        notes: notes || null,
       },
     });
 
@@ -60,18 +61,19 @@ async function getMesRdv(req, res) {
   }
 }
 
-// GET /api/rdv/jour - CHEF_ATELIER voit RDV du jour
+// GET /api/rdv/jour - CHEF_ATELIER voit RDV à venir (aujourd'hui + futurs)
 async function getRdvJour(req, res) {
   try {
     const today = new Date();
     const start = startOfDay(today);
-    const end = endOfDay(today);
 
     const rdv = await prisma.rendezVous.findMany({
       where: {
         dateHeure: {
           gte: start,
-          lte: end,
+        },
+        statut: {
+          in: ['EN_ATTENTE', 'CONFIRME'],
         },
       },
       include: {
@@ -82,7 +84,7 @@ async function getRdvJour(req, res) {
       orderBy: { dateHeure: 'asc' },
     });
 
-    return response(res, true, { rdv }, 'Rendez-vous du jour récupérés');
+    return response(res, true, { rdv }, 'Rendez-vous récupérés');
   } catch (err) {
     console.error('Erreur getRdvJour:', err);
     return response(res, false, {}, 'Erreur serveur', 500);

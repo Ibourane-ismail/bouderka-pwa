@@ -35,7 +35,9 @@ const LoginPage = () => {
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Logo className="h-16 mx-auto mb-4" />
+          <div className="bg-[#1a1a1a] p-6 md:p-8 rounded-2xl shadow-lg w-fit mx-auto mb-6">
+            <Logo className="h-[80px] md:h-[120px] mx-auto" />
+          </div>
           <h1 className="text-2xl font-bold text-[#1a1a1a]">Espace Client</h1>
         </div>
 
