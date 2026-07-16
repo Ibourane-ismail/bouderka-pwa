@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Logo from '../../components/Logo';
 import toast from 'react-hot-toast';
@@ -15,6 +15,8 @@ const RegisterPage = () => {
   });
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname;
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -29,7 +31,7 @@ const RegisterPage = () => {
     try {
       await register(form.nom, form.prenom, form.email, form.telephone, form.password);
       toast.success('Inscription réussie');
-      navigate('/login');
+      navigate('/login', from ? { state: { from: { pathname: from } } } : undefined);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Erreur lors de l\'inscription');
     }
@@ -93,7 +95,7 @@ const RegisterPage = () => {
 
           <p className="mt-6 text-center text-sm text-gray-500">
             Déjà un compte ?{' '}
-            <a href="/login" className="text-[#CC0000] hover:underline font-medium">Connexion</a>
+            <Link to="/login" state={from ? { from: { pathname: from } } : undefined} className="text-[#CC0000] hover:underline font-medium">Connexion</Link>
           </p>
         </form>
       </div>

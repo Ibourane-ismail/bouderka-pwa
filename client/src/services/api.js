@@ -17,7 +17,7 @@ api.interceptors.response.use(
 
     switch (status) {
       case 401:
-        if (!['/login', '/register'].includes(window.location.pathname)) {
+        if (error.config?.url !== '/api/auth/me' && !['/login', '/register'].includes(window.location.pathname)) {
           localStorage.setItem('redirectLoginRequired', '1');
           window.location.href = '/login';
         }

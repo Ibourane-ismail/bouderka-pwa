@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Logo from '../../components/Logo';
 import toast from 'react-hot-toast';
@@ -75,7 +75,7 @@ const LoginPage = () => {
 
           <p className="mt-6 text-center text-sm text-gray-500">
             Pas de compte ?{' '}
-            <a href="/register" className="text-[#CC0000] hover:underline font-medium">Inscription</a>
+            <Link to="/register" state={from ? { from } : undefined} className="text-[#CC0000] hover:underline font-medium">Inscription</Link>
           </p>
         </form>
       </div>
