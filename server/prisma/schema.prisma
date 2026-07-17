@@ -80,23 +80,30 @@ model User {
 }
 
 model Vehicule {
-  id            String       @id @default(uuid())
-  marque        Marque
-  modele        String
-  annee         Int
-  prix          Decimal       @db.Decimal(10, 2)
-  prixPromo     Decimal?      @db.Decimal(10, 2)
-  kilometrage   Int
-  carburant     String
-  transmission  String
-  description   String
-  statut        StatutVehicule @default(DISPONIBLE)
-  images        Json
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id              String         @id @default(uuid())
+  marque          Marque
+  modele          String
+  version         String?
+  finition        String?
+  annee           Int
+  prix            Decimal        @db.Decimal(10, 2)
+  prixPromo       Decimal?       @db.Decimal(10, 2)
+  kilometrage     Int
+  carburant       String
+  transmission    String
+  description     String
+  couleur         String?
+  couleurs        Json?
+  options         Json?
+  imagesCouleurs  Json?
+  disponibilite   String?        @default("Disponible")
+  statut          StatutVehicule @default(DISPONIBLE)
+  images          Json
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   // Relations
-    testDrives   TestDrive[]
+  testDrives   TestDrive[]
   entretiens   EntretienHistorique[]
 }
 

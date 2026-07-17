@@ -10,9 +10,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#1E40AF',
-        secondary: '#F1F2F6',
-        accent: '#E11D49',
+        primary: '#111827',
+        secondary: '#F8F9FA',
+        accent: '#CC0000',
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       spacing: {
         '150': '37.5rem',
@@ -43,10 +46,20 @@ export default {
           '0%': { transform: 'translateX(0)', opacity: '1' },
           '100%': { transform: 'translateX(-100%)', opacity: '0' },
         },
+        'fade-in': {
+          '0%': { opacity: '0', transform: 'translateY(12px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'scale-in': {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
       },
       animation: {
         'spin-slow': 'spin-slow 15s linear infinite',
         'float': 'float 4s ease-in-out infinite',
+        'fade-in': 'fade-in 0.5s ease-out forwards',
+        'scale-in': 'scale-in 0.3s ease-out forwards',
       },
     },
   },

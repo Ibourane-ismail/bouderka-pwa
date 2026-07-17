@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import BrandCataloguePage from './pages/BrandCataloguePage'
+import VehicleDetailPage from './pages/VehicleDetailPage'
 
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
@@ -23,6 +24,7 @@ import ProfilPage from './pages/client/ProfilPage'
 import CommercialDashboard from './pages/commercial/DashboardPage'
 import CommercialCatalogue from './pages/commercial/CataloguePage'
 import TestDrivesPage from './pages/commercial/TestDrivesPage'
+import CommercialMedia from './pages/commercial/MediaPage'
 
 import AtelierDashboard from './pages/atelier/DashboardPage'
 import CalendrierPage from './pages/atelier/CalendrierPage'
@@ -50,6 +52,9 @@ function App() {
 
       {/* ===== Catalogue par marque ===== */}
       <Route path="/catalogue/:marque" element={<BrandCataloguePage />} />
+
+      {/* ===== Détail véhicule ===== */}
+      <Route path="/vehicule/:id" element={<VehicleDetailPage />} />
 
       {/* ===== Authentification ===== */}
       <Route
@@ -99,6 +104,7 @@ function App() {
         <Route path="dashboard" element={<CommercialDashboard />} />
         <Route path="catalogue" element={<CommercialCatalogue />} />
         <Route path="test-drives" element={<TestDrivesPage />} />
+        <Route path="media" element={<CommercialMedia />} />
       </Route>
 
       {/* ===== Chef Atelier ===== */}

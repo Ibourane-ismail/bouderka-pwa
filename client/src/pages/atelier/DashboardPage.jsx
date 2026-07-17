@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import { useState, useEffect } from 'react'
+import api from '../../services/api'
+import StatCard from '../../components/StatCard'
+import StatutBadge from '../../components/StatutBadge'
+import DataTable from '../../components/DataTable'
 
 const DashboardPage = () => {
-  const [rdvJour, setRdvJour] = useState([]);
-  const [vehicules, setVehicules] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [rdvJour, setRdvJour] = useState([])
+  const [vehicules, setVehicules] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -12,85 +15,79 @@ const DashboardPage = () => {
         const [rdvRes, vehRes] = await Promise.all([
           api.get('/api/rdv/jour').catch(() => ({ data: { data: { rdv: [] } } })),
           api.get('/api/vehicules', { params: { statut: 'EN_REVISION', limit: 200 } }).catch(() => ({ data: { data: { vehicules: [] } } })),
-        ]);
-        setRdvJour(rdvRes.data.data.rdv || []);
-        setVehicules(vehRes.data.data.vehicules || []);
+        ])
+        setRdvJour(rdvRes.data.data.rdv || [])
+        setVehicules(vehRes.data.data.vehicules || [])
       } catch (err) {
-        console.error('Erreur chargement dashboard:', err);
+        console.error('Erreur chargement dashboard:', err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    fetchData();
-  }, []);
+    }
+    fetchData()
+  }, [])
 
-  const rdvEnAttente = rdvJour.filter(r => r.statut === 'EN_ATTENTE').length;
-  const rdvConfirme = rdvJour.filter(r => r.statut === 'CONFIRME').length;
+  const rdvEnAttente = rdvJour.filter(r => r.statut === 'EN_ATTENTE').length
+  const rdvConfirme = rdvJour.filter(r => r.statut === 'CONFIRME').length
 
-  if (loading) return <div className="text-center py-10 text-gray-500">Chargement...</div>;
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="skeleton-title" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="skeleton h-32" />
+          <div className="skeleton h-32" />
+          <div className="skeleton h-32" />
+        </div>
+        <div className="skeleton h-64" />
+      </div>
+    )
+  }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Dashboard Atelier</h1>
+    <div className="space-y-8">
+      <h1 className="section-title">Vue d'ensemble</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white rounded-lg shadow p-5">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">RDV du jour</h3>
-          <p className="text-3xl font-bold text-[#CC0000]">{rdvJour.length}</p>
-          <p className="text-gray-500 text-sm">{rdvConfirme} confirmés</p>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-5">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">RDV en attente</h3>
-          <p className="text-3xl font-bold text-yellow-600">{rdvEnAttente}</p>
-          <p className="text-gray-500 text-sm">à confirmer</p>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-5">
-          <h3 className="text-sm font-medium text-gray-500 mb-1">Véhicules en révision</h3>
-          <p className="text-3xl font-bold text-blue-600">{vehicules.length}</p>
-          <p className="text-gray-500 text-sm">en cours</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <StatCard
+          title="RDV du jour"
+          icon="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+          value={rdvJour.length}
+          subtitle={`${rdvConfirme} confirmés`}
+        />
+        <StatCard
+          title="RDV en attente"
+          icon="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+          value={rdvEnAttente}
+          subtitle="à confirmer"
+        />
+        <StatCard
+          title="Véhicules en révision"
+          icon="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+          value={vehicules.length}
+          subtitle="en cours"
+        />
       </div>
 
       {rdvJour.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold mb-3">Prochains RDV</h2>
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="w-full text-left">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-sm font-medium text-gray-500">Heure</th>
-                  <th className="px-4 py-3 text-sm font-medium text-gray-500">Client</th>
-                  <th className="px-4 py-3 text-sm font-medium text-gray-500">Motif</th>
-                  <th className="px-4 py-3 text-sm font-medium text-gray-500">Statut</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {rdvJour.map(r => (
-                  <tr key={r.id}>
-                    <td className="px-4 py-3 text-sm font-medium">
-                      {new Date(r.dateHeure).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                    </td>
-                    <td className="px-4 py-3 text-sm">{r.client?.prenom} {r.client?.nom}</td>
-                    <td className="px-4 py-3 text-sm">{r.motif}</td>
-                    <td className="px-4 py-3 text-sm">
-                      <span className={`px-2 py-0.5 text-xs rounded-full ${
-                        r.statut === 'CONFIRME' ? 'bg-green-100 text-green-700' :
-                        r.statut === 'REFUSE' ? 'bg-red-100 text-red-700' :
-                        r.statut === 'TERMINE' ? 'bg-gray-100 text-gray-700' :
-                        'bg-yellow-100 text-yellow-700'
-                      }`}>{r.statut.replace('_', ' ')}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Prochains RDV</h2>
+          <DataTable
+            columns={[
+              {
+                key: 'heure', label: 'Heure',
+                render: (r) => new Date(r.dateHeure).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+              },
+              { key: 'client', label: 'Client', render: (r) => `${r.client?.prenom} ${r.client?.nom}` },
+              { key: 'motif', label: 'Motif' },
+              { key: 'statut', label: 'Statut', render: (r) => <StatutBadge statut={r.statut} /> },
+            ]}
+            data={rdvJour}
+          />
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default DashboardPage;
+export default DashboardPage

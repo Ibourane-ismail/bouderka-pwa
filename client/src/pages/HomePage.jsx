@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 
@@ -12,7 +12,7 @@ const slides = [
     alt: 'Showroom Bouderka',
   },
   {
-    image: 'https://www.decoactuelle.ma/wp-content/uploads/2024/02/PME24_0026_fine.jpg',
+    image: 'https://bouderka.ma/storage/2023/11/GAL5-scaled.jpg',
     alt: 'Espace Premium Bouderka',
   },
 ]
@@ -34,6 +34,24 @@ export default function HomePage() {
     const timer = setInterval(next, 5000)
     return () => clearInterval(timer)
   }, [next, paused])
+
+  const aboutRef = useRef(null)
+
+  useEffect(() => {
+    const el = aboutRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add('is-visible')
+          observer.unobserve(el)
+        }
+      },
+      { threshold: 0.15 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
@@ -132,45 +150,6 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* ── Cartes flottantes ── */}
-          {/* Garantie */}
-          <div className="hidden sm:block absolute bottom-20 left-8 lg:left-16 z-20 bg-white rounded-2xl shadow-xl shadow-black/10 border border-gray-100 px-4 py-3 flex items-center gap-3 animate-[float_4s_ease-in-out_infinite]">
-            <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </div>
-            <div>
-              <div className="text-xs font-bold text-gray-900">Garantie</div>
-              <div className="text-[11px] text-gray-400">Jusqu'à 2 ans</div>
-            </div>
-          </div>
-
-          {/* Livraison */}
-          <div className="hidden sm:block absolute top-8 right-8 lg:right-16 z-20 bg-white rounded-2xl shadow-xl shadow-black/10 border border-gray-100 px-4 py-3 flex items-center gap-3 animate-[float_4s_ease-in-out_infinite_1s]">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-              </svg>
-            </div>
-            <div>
-              <div className="text-xs font-bold text-gray-900">Livraison</div>
-              <div className="text-[11px] text-gray-400">Gratuite à domicile</div>
-            </div>
-          </div>
-
-          {/* Test Drive */}
-          <div className="hidden sm:block absolute bottom-32 right-8 lg:right-20 z-20 bg-white rounded-2xl shadow-xl shadow-black/10 border border-gray-100 px-4 py-3 flex items-center gap-3 animate-[float_4s_ease-in-out_infinite_2s]">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <div className="text-xs font-bold text-gray-900">Test Drive</div>
-              <div className="text-[11px] text-gray-400">Réservation rapide</div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -193,7 +172,7 @@ export default function HomePage() {
               { title: "Vente de véhicules", desc: "Large choix de véhicules neufs et d'occasion, inspectés et garantis." },
               { title: "Entretien & Réparation", desc: "Atelier équipé avec des techniciens certifiés pour l'entretien de votre véhicule." },
               { title: "Garantie étendue", desc: "Options de garantie prolongée pour votre tranquillité d'esprit." },
-              { title: "Financement", desc: "Solutions de financement flexibles adaptées à votre budget." },
+              { title: "Test Drive", desc: "Essayez votre futur véhicule avant de prendre votre décision grâce à une réservation simple et rapide." },
               { title: "Prise de rendez-vous", desc: "Planifiez vos visites et services en ligne, à tout moment." },
               { title: "Conseil personnalisé", desc: "Une équipe dédiée pour vous guider dans vos choix." },
             ].map((s) => (
@@ -214,44 +193,130 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── MARQUES ─── */}
-      <section id="vehicules" className="py-20 lg:py-28">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <span className="text-primary font-semibold text-sm uppercase tracking-wider">
+      {/* ─── QUI SOMMES-NOUS ? ─── */}
+      <section id="vehicules" className="py-24 lg:py-36 bg-white">
+        <div
+          ref={aboutRef}
+          className="about-reveal max-w-[1340px] mx-auto px-5 sm:px-8 lg:px-12"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-start lg:gap-20">
+
+            {/* ─── Colonne texte ─── */}
+            <div className="about-text lg:w-[45%] lg:sticky lg:top-32">
+              <span className="inline-block text-primary font-semibold text-[0.7rem] uppercase tracking-[0.25em]">
+                Bouderka SARL
+              </span>
+              <h2 className="mt-5 text-3xl sm:text-4xl lg:text-[2.8rem] font-bold tracking-[-0.025em] leading-[1.1]">
+                Qui sommes-nous&nbsp;?
+              </h2>
+              <p className="mt-4 text-sm font-medium text-gray-400 tracking-wide">
+                Plus de 50 ans d'expertise au service de votre mobilité.
+              </p>
+
+              <div className="mt-10 space-y-5 text-gray-500 text-[0.975rem] leading-[1.85]">
+                <p>
+                  Fondée en{' '}
+                  <span className="text-primary font-semibold">1973</span>, la Société
+                  Bouderka SARL est un concessionnaire automobile exclusif des marques{' '}
+                  <span className="text-primary font-semibold">Volkswagen</span>,{' '}
+                  <span className="text-primary font-semibold">Audi</span>,{' '}
+                  <span className="text-primary font-semibold">Škoda</span> et{' '}
+                  <span className="text-primary font-semibold">Porsche</span> à Marrakech.
+                </p>
+                <p>
+                  Forte de plus de{' '}
+                  <span className="text-primary font-semibold">50&nbsp;ans d'expérience</span>,
+                  l'entreprise est reconnue pour son professionnalisme et son engagement à
+                  fournir un service exceptionnel à sa clientèle.
+                </p>
+                <p>
+                  L'équipe de la Société Bouderka SARL est composée d'experts dans leur
+                  domaine. Ils sont passionnés par l'automobile et sont toujours à la
+                  recherche des dernières innovations. Ils sont également formés aux
+                  dernières technologies et méthodes de réparation.
+                </p>
+                <p>
+                  Notre société est fière de ses valeurs. Elle est engagée dans le{' '}
+                  <span className="text-primary font-semibold">développement durable</span>{' '}
+                  et la{' '}
+                  <span className="text-primary font-semibold">
+                    responsabilité sociale
+                  </span>
+                  , et s'engage également à soutenir la communauté locale.
+                </p>
+              </div>
+            </div>
+
+            {/* ─── Galerie ─── */}
+            <div className="about-gallery lg:w-[55%] mt-14 lg:mt-0">
+              <div className="grid grid-cols-2 grid-rows-2 gap-3.5 h-[420px] sm:h-[520px] lg:h-full lg:min-h-[580px]">
+                {/* Image principale — grande, spanning 2 lignes */}
+                <div className="col-span-1 row-span-2 rounded-2xl overflow-hidden group shadow-[0_2px_20px_rgba(0,0,0,0.06)]">
+                  <img
+                    src="https://bouderka.ma/storage/2023/11/meca-scaled.jpg"
+                    alt="Atelier Bouderka"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                    loading="lazy"
+                  />
+                </div>
+                {/* Image secondaire 1 */}
+                <div className="col-span-1 row-span-1 rounded-2xl overflow-hidden group shadow-[0_2px_20px_rgba(0,0,0,0.06)]">
+                  <img
+                    src="https://bouderka.ma/storage/2023/11/GAL1-scaled.jpg"
+                    alt="Showroom Bouderka"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                    loading="lazy"
+                  />
+                </div>
+                {/* Image secondaire 2 */}
+                <div className="col-span-1 row-span-1 rounded-2xl overflow-hidden group shadow-[0_2px_20px_rgba(0,0,0,0.06)]">
+                  <img
+                    src="https://bouderka.ma/storage/2023/11/GAL2-scaled.jpg"
+                    alt="Véhicules Bouderka"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ─── MARQUES ─── */}
+          <div className="mt-28 lg:mt-36">
+            <span className="inline-block text-primary font-semibold text-[0.7rem] uppercase tracking-[0.25em]">
               Nos marques
             </span>
-            <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
+            <h3 className="mt-5 text-3xl sm:text-4xl lg:text-[2.8rem] font-bold tracking-[-0.025em] leading-[1.1]">
               Explorez par marque
-            </h2>
-            <p className="mt-4 text-gray-500 text-lg max-w-2xl mx-auto">
+            </h3>
+            <p className="mt-4 text-gray-400 text-[0.975rem] leading-[1.85]">
               Découvrez notre sélection de véhicules pour chaque marque.
             </p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { name: 'Volkswagen', slug: 'volkswagen', desc: 'Allemande, fiable et accessible' },
-              { name: 'Škoda', slug: 'skoda', desc: 'Design intelligent, prix malin' },
-              { name: 'Audi', slug: 'audi', desc: 'Vorsprung durch Technik' },
-              { name: 'Porsche', slug: 'porsche', desc: 'Performance et prestige' },
-            ].map((brand) => (
-              <Link
-                key={brand.slug}
-                to={`/catalogue/${brand.slug}`}
-                className="group p-8 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-primary hover:border-primary transition-all duration-300 text-center"
-              >
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-white shadow-sm flex items-center justify-center mb-5 group-hover:bg-white/20 transition-colors duration-300">
-                  <span className="text-2xl font-extrabold text-gray-900 group-hover:text-white transition-colors duration-300">
-                    {brand.name.charAt(0)}
-                  </span>
-                </div>
-                <h3 className="text-lg font-bold mb-1 group-hover:text-white transition-colors duration-300">{brand.name}</h3>
-                <p className="text-gray-400 text-sm group-hover:text-white/70 transition-colors duration-300">{brand.desc}</p>
-                <div className="mt-4 text-primary font-semibold text-sm group-hover:text-white transition-colors duration-300">
-                  Voir le catalogue →
-                </div>
-              </Link>
-            ))}
+            <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { name: 'Volkswagen', slug: 'volkswagen', desc: 'Allemande, fiable et accessible' },
+                { name: 'Škoda', slug: 'skoda', desc: 'Design intelligent, prix malin' },
+                { name: 'Audi', slug: 'audi', desc: 'Vorsprung durch Technik' },
+                { name: 'Porsche', slug: 'porsche', desc: 'Performance et prestige' },
+              ].map((brand) => (
+                <Link
+                  key={brand.slug}
+                  to={`/catalogue/${brand.slug}`}
+                  className="group p-8 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-primary hover:border-primary transition-all duration-300 text-center"
+                >
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-white shadow-sm flex items-center justify-center mb-5 group-hover:bg-white/20 transition-colors duration-300">
+                    <span className="text-2xl font-extrabold text-gray-900 group-hover:text-white transition-colors duration-300">
+                      {brand.name.charAt(0)}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold mb-1 group-hover:text-white transition-colors duration-300">{brand.name}</h3>
+                  <p className="text-gray-400 text-sm group-hover:text-white/70 transition-colors duration-300">{brand.desc}</p>
+                  <div className="mt-4 text-primary font-semibold text-sm group-hover:text-white transition-colors duration-300">
+                    Voir le catalogue →
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>

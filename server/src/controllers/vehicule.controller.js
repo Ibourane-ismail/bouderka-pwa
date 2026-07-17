@@ -17,7 +17,7 @@ async function getVehicules(req, res) {
     const { marque, statut, prixMin, prixMax, page = 1, limit = 20 } = req.query;
 
     const where = {
-      statut: statut || 'DISPONIBLE',
+      ...(statut ? { statut } : {}),
       ...(marque && { marque }),
       ...(prixMin && { prix: { gte: Number(prixMin) } }),
       ...(prixMax && { prix: { lte: Number(prixMax) } }),
@@ -83,12 +83,14 @@ async function createVehicule(req, res) {
       return response(res, false, {}, 'Validation échouée', 400);
     }
 
-    const { marque, modele, annee, prix, prixPromo, kilometrage, carburant, transmission, description, images } = req.body;
+    const { marque, modele, version, finition, annee, prix, prixPromo, kilometrage, carburant, transmission, description, couleur, couleurs, options, imagesCouleurs, disponibilite, images } = req.body;
 
     const vehicule = await prisma.vehicule.create({
       data: {
         marque,
         modele,
+        version: version || null,
+        finition: finition || null,
         annee: Number(annee),
         prix: Number(prix),
         prixPromo: prixPromo ? Number(prixPromo) : null,
@@ -96,6 +98,11 @@ async function createVehicule(req, res) {
         carburant,
         transmission,
         description,
+        couleur: couleur || null,
+        couleurs: couleurs || null,
+        options: options || null,
+        imagesCouleurs: imagesCouleurs || null,
+        disponibilite: disponibilite || 'Disponible',
         images: images || [],
         statut: 'DISPONIBLE',
       },
@@ -112,7 +119,7 @@ async function createVehicule(req, res) {
 async function updateVehicule(req, res) {
   try {
     const { id } = req.params;
-    const { marque, modele, annee, prix, prixPromo, kilometrage, carburant, transmission, description, images, statut } = req.body;
+    const { marque, modele, version, finition, annee, prix, prixPromo, kilometrage, carburant, transmission, description, couleur, couleurs, options, imagesCouleurs, disponibilite, images, statut } = req.body;
 
     const vehicule = await prisma.vehicule.findUnique({ where: { id } });
     if (!vehicule) {
@@ -124,6 +131,8 @@ async function updateVehicule(req, res) {
       data: {
         ...(marque && { marque }),
         ...(modele && { modele }),
+        ...(version !== undefined && { version: version || null }),
+        ...(finition !== undefined && { finition: finition || null }),
         ...(annee && { annee: Number(annee) }),
         ...(prix && { prix: Number(prix) }),
         ...(prixPromo !== undefined && { prixPromo: prixPromo ? Number(prixPromo) : null }),
@@ -131,6 +140,11 @@ async function updateVehicule(req, res) {
         ...(carburant && { carburant }),
         ...(transmission && { transmission }),
         ...(description && { description }),
+        ...(couleur !== undefined && { couleur: couleur || null }),
+        ...(couleurs !== undefined && { couleurs }),
+        ...(options !== undefined && { options }),
+        ...(imagesCouleurs !== undefined && { imagesCouleurs }),
+        ...(disponibilite !== undefined && { disponibilite: disponibilite || 'Disponible' }),
         ...(images && { images }),
         ...(statut && { statut }),
       },

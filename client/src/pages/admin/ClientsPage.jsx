@@ -1,154 +1,158 @@
-import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from 'react'
+import api from '../../services/api'
+import toast from 'react-hot-toast'
+import DataTable from '../../components/DataTable'
+import Pagination from '../../components/Pagination'
 
-const ROLES = ['CLIENT', 'COMMERCIAL', 'CHEF_ATELIER', 'ADMIN'];
-const PAGE_SIZE = 10;
+const ROLES = ['CLIENT', 'COMMERCIAL', 'CHEF_ATELIER', 'ADMIN']
+const PAGE_SIZE = 10
+
+const roleConfig = {
+  CLIENT: { bg: 'bg-blue-50', text: 'text-blue-700' },
+  COMMERCIAL: { bg: 'bg-emerald-50', text: 'text-emerald-700' },
+  CHEF_ATELIER: { bg: 'bg-amber-50', text: 'text-amber-700' },
+  ADMIN: { bg: 'bg-purple-50', text: 'text-purple-700' },
+}
+
+const RoleBadge = ({ role }) => {
+  const c = roleConfig[role] || { bg: 'bg-gray-50', text: 'text-gray-700' }
+  return (
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${c.bg} ${c.text}`}>
+      {role.replace('_', ' ')}
+    </span>
+  )
+}
+
+const Toggle = ({ active, onChange }) => (
+  <button onClick={onChange} className={`toggle ${active ? 'active' : ''}`}>
+    <span className="toggle-knob" />
+  </button>
+)
 
 const ClientsPage = () => {
-  const [clients, setClients] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
+  const [clients, setClients] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
 
   const fetchClients = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const res = await api.get('/api/clients');
-      setClients(res.data.data.clients || []);
+      const res = await api.get('/api/clients')
+      setClients(res.data.data.clients || [])
     } catch (err) {
-      console.error(err);
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  useEffect(() => { fetchClients(); }, []);
+  useEffect(() => { fetchClients() }, [])
 
   const toggleActif = async (id) => {
     try {
-      await api.put(`/api/clients/${id}/actif`);
-      setClients(prev => prev.map(c => c.id === id ? { ...c, actif: !c.actif } : c));
-      toast.success('Statut mis à jour');
+      await api.put(`/api/clients/${id}/actif`)
+      setClients(prev => prev.map(c => c.id === id ? { ...c, actif: !c.actif } : c))
+      toast.success('Statut mis à jour')
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Erreur');
+      toast.error(err.response?.data?.message || 'Erreur')
     }
-  };
+  }
 
   const changeRole = async (id, role) => {
     try {
-      await api.put(`/api/clients/${id}/role`, { role });
-      setClients(prev => prev.map(c => c.id === id ? { ...c, role } : c));
-      toast.success('Rôle mis à jour');
+      await api.put(`/api/clients/${id}/role`, { role })
+      setClients(prev => prev.map(c => c.id === id ? { ...c, role } : c))
+      toast.success('Rôle mis à jour')
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Erreur');
+      toast.error(err.response?.data?.message || 'Erreur')
     }
-  };
+  }
 
   const filtered = clients.filter(c => {
-    const q = search.toLowerCase();
-    return !q || c.nom?.toLowerCase().includes(q) || c.prenom?.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q);
-  });
+    const q = search.toLowerCase()
+    return !q || c.nom?.toLowerCase().includes(q) || c.prenom?.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q)
+  })
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  useEffect(() => { setPage(1); }, [search]);
+  useEffect(() => { setPage(1) }, [search])
 
-  const roleBadge = (role) => {
-    const cls = {
-      CLIENT: 'bg-blue-100 text-blue-700',
-      COMMERCIAL: 'bg-green-100 text-green-700',
-      CHEF_ATELIER: 'bg-yellow-100 text-yellow-700',
-      ADMIN: 'bg-purple-100 text-purple-700',
-    };
+  if (loading) {
     return (
-      <span className={`px-2 py-0.5 text-xs rounded-full ${cls[role] || 'bg-gray-100 text-gray-700'}`}>
-        {role.replace('_', ' ')}
-      </span>
-    );
-  };
-
-  if (loading) return <div className="text-center py-10 text-gray-500">Chargement...</div>;
+      <div className="space-y-6">
+        <div className="skeleton-title" />
+        <div className="skeleton h-12 w-96" />
+        <div className="skeleton h-64" />
+      </div>
+    )
+  }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Gestion des Utilisateurs</h1>
-
-      <div className="mb-4">
-        <input type="text" placeholder="Rechercher par nom, prénom, email..."
-          value={search} onChange={(e) => setSearch(e.target.value)}
-          className="w-full md:w-96 px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-transparent transition" />
+    <div className="space-y-8">
+      <div>
+        <h1 className="section-title">Gestion des utilisateurs</h1>
+        <p className="text-sm text-gray-400 mt-1">{clients.length} utilisateurs inscrits</p>
       </div>
 
-      {paginated.length === 0 ? (
-        <p className="text-gray-400">Aucun utilisateur trouvé.</p>
-      ) : (
-        <>
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="w-full text-left">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-sm font-medium text-gray-500">Nom</th>
-                  <th className="px-4 py-3 text-sm font-medium text-gray-500">Prénom</th>
-                  <th className="px-4 py-3 text-sm font-medium text-gray-500">Email</th>
-                  <th className="px-4 py-3 text-sm font-medium text-gray-500">Téléphone</th>
-                  <th className="px-4 py-3 text-sm font-medium text-gray-500">Rôle</th>
-                  <th className="px-4 py-3 text-sm font-medium text-gray-500">Actif</th>
-                  <th className="px-4 py-3 text-sm font-medium text-gray-500">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {paginated.map(c => (
-                  <tr key={c.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-medium">{c.nom}</td>
-                    <td className="px-4 py-3 text-sm">{c.prenom}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{c.email}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{c.telephone || '—'}</td>
-                    <td className="px-4 py-3 text-sm">{roleBadge(c.role)}</td>
-                    <td className="px-4 py-3 text-sm">
-                      <button onClick={() => toggleActif(c.id)}
-                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                          c.actif ? 'bg-green-500' : 'bg-gray-300'
-                        }`}>
-                        <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
-                          c.actif ? 'translate-x-4.5' : 'translate-x-0.5'
-                        }`} style={{ transform: `translateX(${c.actif ? '18px' : '2px'})` }} />
-                      </button>
-                    </td>
-                    <td className="px-4 py-3 text-sm">
-                      <select value={c.role} onChange={(e) => changeRole(c.id, e.target.value)}
-                        className="px-2 py-1 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-transparent transition">
-                        {ROLES.map(r => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      <div>
+        <div className="relative">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <input type="text" placeholder="Rechercher par nom, prénom, email..." value={search} onChange={(e) => setSearch(e.target.value)}
+            className="form-input pl-10 w-full md:w-96" />
+        </div>
+      </div>
 
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4">
-              <p className="text-sm text-gray-500">
-                {filtered.length} résultat(s) — Page {page}/{totalPages}
-              </p>
-              <div className="flex gap-2">
-                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                  className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50">
-                  Précédent
-                </button>
-                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                  className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50">
-                  Suivant
-                </button>
-              </div>
+      <DataTable
+        columns={[
+          { key: 'nom', label: 'Nom', render: (c) => <span className="font-semibold">{c.nom}</span> },
+          { key: 'prenom', label: 'Prénom' },
+          { key: 'email', label: 'Email', render: (c) => <span className="text-gray-400">{c.email}</span> },
+          { key: 'telephone', label: 'Téléphone', render: (c) => c.telephone || <span className="text-gray-300">—</span> },
+          { key: 'role', label: 'Rôle', render: (c) => <RoleBadge role={c.role} /> },
+          {
+            key: 'actif', label: 'Actif',
+            render: (c) => <Toggle active={c.actif} onChange={() => toggleActif(c.id)} />,
+          },
+          {
+            key: 'actions', label: 'Actions',
+            render: (c) => (
+              <select value={c.role} onChange={(e) => changeRole(c.id, e.target.value)}
+                className="form-select text-xs py-1.5 px-3 w-auto min-w-[130px]">
+                {ROLES.map(r => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
+              </select>
+            ),
+          },
+        ]}
+        data={paginated}
+        renderMobileCard={(c) => (
+          <div key={c.id} className="content-card p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-gray-900">{c.nom} {c.prenom}</span>
+              <RoleBadge role={c.role} />
             </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-};
+            <p className="text-sm text-gray-500">{c.email}</p>
+            <p className="text-sm text-gray-400">{c.telephone || '—'}</p>
+            <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400">{c.actif ? 'Actif' : 'Inactif'}</span>
+                <Toggle active={c.actif} onChange={() => toggleActif(c.id)} />
+              </div>
+              <select value={c.role} onChange={(e) => changeRole(c.id, e.target.value)}
+                className="form-select text-xs py-1.5 w-auto min-w-[120px]">
+                {ROLES.map(r => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
+              </select>
+            </div>
+          </div>
+        )}
+      />
 
-export default ClientsPage;
+      <Pagination currentPage={page} totalPages={totalPages} totalItems={filtered.length} onPageChange={setPage} />
+    </div>
+  )
+}
+
+export default ClientsPage

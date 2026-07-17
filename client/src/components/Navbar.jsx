@@ -20,7 +20,7 @@ const brands = [
 const navLinks = [
   { label: 'Accueil', href: '#hero' },
   { label: 'Services', href: '#services' },
-  { label: 'Pourquoi Bouderka', href: '#vehicules' },
+  { label: 'Qui sommes-nous ?', href: '#vehicules' },
   { label: 'Contact', href: '#contact' },
 ]
 
@@ -79,14 +79,11 @@ export default function Navbar() {
       }`}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 lg:h-15">
+        <div className="flex items-center justify-between h-[4.5rem] lg:h-[5.5rem]">
 
           {/* Logo */}
-          <a href="#hero" onClick={(e) => handleNav(e, '#hero')} className="flex-shrink-0 flex items-center gap-2">
-            <Logo className="h-7 lg:h-8" />
-            <span className={`text-sm font-bold tracking-tight transition-colors duration-300 ${
-              scrolled ? 'text-gray-900' : 'text-gray-800'
-            }`}>Bouderka</span>
+          <a href="#hero" onClick={(e) => handleNav(e, '#hero')} className="flex-shrink-0 flex items-center">
+            <Logo className="h-12 lg:h-16" />
           </a>
 
           {/* Desktop nav */}
@@ -222,7 +219,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       <div
-        className={`lg:hidden fixed inset-x-0 top-14 bottom-0 bg-white transition-all duration-300 ${
+        className={`lg:hidden fixed inset-x-0 top-[4.5rem] bottom-0 bg-white transition-all duration-300 ${
           mobileOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
         }`}
       >
