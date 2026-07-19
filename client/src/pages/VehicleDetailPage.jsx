@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import Logo from '../components/Logo'
 import toast from 'react-hot-toast'
 
 const brandConfig = {
@@ -290,9 +291,19 @@ export default function VehicleDetailPage() {
                 )}
 
                 {/* Title */}
-                <h1 className="text-3xl sm:text-4xl font-black tracking-tighter leading-tight text-gray-900">
-                  {vehicule.marque} {vehicule.modele}
-                </h1>
+                {brand && (
+                  <div className="flex items-center gap-3 mb-2">
+                    <Logo type={brand.slug} className="h-12 w-12" />
+                    <h1 className="text-3xl sm:text-4xl font-black tracking-tighter leading-tight text-gray-900">
+                      {vehicule.marque} {vehicule.modele}
+                    </h1>
+                  </div>
+                )}
+                {!brand && (
+                  <h1 className="text-3xl sm:text-4xl font-black tracking-tighter leading-tight text-gray-900">
+                    {vehicule.marque} {vehicule.modele}
+                  </h1>
+                )}
 
                 {/* Version */}
                 {(vehicule.version || vehicule.finition) && (

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Logo from './Logo'
 
@@ -27,12 +27,34 @@ const navLinks = [
 export default function Navbar() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [vehiculesOpen, setVehiculesOpen] = useState(false)
   const [desktopDropdown, setDesktopDropdown] = useState(false)
   const dropdownRef = useRef(null)
   const timeoutRef = useRef(null)
+
+  useEffect(() => {
+    if (location.state?.scrollTo) {
+      const scrollId = location.state.scrollTo
+      const doScroll = () => {
+        const el = document.querySelector(scrollId)
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' })
+          return true
+        }
+        return false
+      }
+      if (!doScroll()) {
+        const timer = setInterval(() => {
+          if (doScroll()) clearInterval(timer)
+        }, 100)
+        setTimeout(() => clearInterval(timer), 3000)
+      }
+      window.history.replaceState({}, document.title)
+    }
+  }, [location.state])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -58,7 +80,11 @@ export default function Navbar() {
     setMobileOpen(false)
     setVehiculesOpen(false)
     const el = document.querySelector(href)
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      navigate('/', { state: { scrollTo: href }, replace: true })
+    }
   }
 
   const handleDesktopEnter = () => {
@@ -131,7 +157,7 @@ export default function Navbar() {
                         onClick={() => setDesktopDropdown(false)}
                       >
                         <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-bold text-gray-500">{brand.name.charAt(0)}</span>
+                          <Logo type={brand.slug} className="h-5 w-5" />
                         </div>
                         <span className="font-medium">{brand.name}</span>
                       </Link>
@@ -264,7 +290,7 @@ export default function Navbar() {
                       className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
                     >
                       <div className="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-bold text-gray-500">{brand.name.charAt(0)}</span>
+                        <Logo type={brand.slug} className="h-4 w-4" />
                       </div>
                       {brand.name}
                     </Link>

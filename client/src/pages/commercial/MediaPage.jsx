@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 const SUGGESTED_OPTIONS = [
   'GPS', 'Apple CarPlay', 'Android Auto', 'Bluetooth', 'Caméra de recul',
   'Radar avant', 'Radar arrière', 'Jantes alliage', 'Climatisation automatique',
-  'Toit panoramique', 'Sièges chauffants', 'Volant chauffant', 'Feeux LED',
+  'Toit panoramique', 'Sièges chauffants', 'Volant chauffant',
   'Phares LED', 'Direction assistée', 'Vitres électriques', 'Verrouillage centralisé',
   'Rétroviseurs rabattables', 'Sellerie cuir', 'Hayon électrique',
   'Régulateur de vitesse', 'Limiteur de vitesse', 'Aide au stationnement',
@@ -31,6 +31,7 @@ const MediaPage = () => {
   const [newCouleurHex, setNewCouleurHex] = useState('#000000')
   const [newCouleurNom, setNewCouleurNom] = useState('')
   const [version, setVersion] = useState('')
+  const [finition, setFinition] = useState('')
   const [disponibilite, setDisponibilite] = useState('Disponible')
 
   const fetchVehicules = async () => {
@@ -54,6 +55,7 @@ const MediaPage = () => {
     setOptions(Array.isArray(v.options) ? v.options.map(o => typeof o === 'string' ? o : o.nom || o.name || o.label || '').filter(Boolean) : [])
     setCouleurs(Array.isArray(v.couleurs) ? v.couleurs.map(c => typeof c === 'string' ? { hex: c, nom: '' } : { hex: c.hex || c.couleur || '', nom: c.nom || c.name || '' }) : [])
     setVersion(v.version || '')
+    setFinition(v.finition || '')
     setDisponibilite(v.disponibilite || 'Disponible')
     setNewPhotoUrl('')
     setNewOption('')
@@ -126,7 +128,7 @@ const MediaPage = () => {
 
   const saveVersion = async () => {
     if (!selectedVehicule) return
-    await saveVehicleData({ version: version || null })
+    await saveVehicleData({ version: version || null, finition: finition || null })
   }
 
   const saveDisponibilite = async (val) => {
@@ -232,9 +234,10 @@ const MediaPage = () => {
 
           <div className="content-card p-6 mb-6">
             <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Version / Finition</h3>
-            <div className="flex gap-3">
-              <input type="text" value={version} onChange={(e) => setVersion(e.target.value)} placeholder="Ex: GTI, S-Line, Style..." className="form-input flex-1" />
-              <button onClick={saveVersion} disabled={updating} className="btn-primary">Enregistrer</button>
+            <div className="flex flex-col gap-3">
+              <input type="text" value={version} onChange={(e) => setVersion(e.target.value)} placeholder="Version (Ex: GTI, S-Line, Style...)" className="form-input" />
+              <input type="text" value={finition} onChange={(e) => setFinition(e.target.value)} placeholder="Finition (Ex: Pack, Luxe, Sport...)" className="form-input" />
+              <button onClick={saveVersion} disabled={updating} className="btn-primary self-start">Enregistrer</button>
             </div>
           </div>
 

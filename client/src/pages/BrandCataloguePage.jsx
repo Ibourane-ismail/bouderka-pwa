@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import api from '../services/api'
 import Navbar from '../components/Navbar'
+import Logo from '../components/Logo'
 
 const brandConfig = {
   volkswagen: { name: 'Volkswagen', apiMarque: 'VOLKSWAGEN', color: '#001E50', tagline: 'Das Auto.' },
@@ -131,7 +132,8 @@ export default function BrandCataloguePage() {
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-none">
             Catalogue
           </h1>
-          <p className="mt-2 text-2xl sm:text-3xl font-light text-white/60 tracking-tight">
+          <p className="mt-2 text-2xl sm:text-3xl font-light text-white/60 tracking-tight flex items-center gap-3">
+            <Logo type={marque} className="h-10 w-10" />
             {config.name}
           </p>
           <p className="mt-4 text-white/40 text-base font-medium tracking-wide uppercase">
@@ -223,7 +225,10 @@ export default function BrandCataloguePage() {
                       <div className="p-6">
                         <div className="flex items-start justify-between gap-3 mb-3">
                           <div>
-                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{v.marque}</p>
+                            <div className="flex items-center gap-2 mb-1">
+                              <Logo type={marque} className="h-5 w-5" />
+                              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{v.marque}</p>
+                            </div>
                             <h3 className="text-lg font-bold text-gray-900 leading-tight">{v.modele}</h3>
                             {v.version && (
                               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-0.5">{v.version}</p>

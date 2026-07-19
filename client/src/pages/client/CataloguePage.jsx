@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../../services/api'
+import Logo from '../../components/Logo'
 import toast from 'react-hot-toast'
 
 const MARQUES = ['', 'VOLKSWAGEN', 'AUDI', 'SKODA']
@@ -143,7 +144,10 @@ const CataloguePage = () => {
                   <Link to={`/vehicule/${v.id}`}>
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div>
-                        <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">{v.marque}</p>
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <Logo type={v.marque?.toLowerCase()} className="h-5 w-5" />
+                          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">{v.marque}</p>
+                        </div>
                         <h3 className="text-lg font-bold text-gray-900 leading-tight">{v.modele}</h3>
                         {v.version && <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">{v.version}</p>}
                       </div>

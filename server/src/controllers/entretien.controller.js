@@ -39,18 +39,20 @@ async function createEntretien(req, res) {
       return response(res, false, {}, 'Validation échouée', 400);
     }
 
-    const { clientId, vehiculeId, typeService, description, dateService, kilometrageService } = req.body;
+    const { clientId, vehiculeId, immatriculation, typeService, description, dateService, kilometrageService, prochainVideange, prochainControle } = req.body;
     const chefAtelierId = req.user.userId;
 
     const entretien = await prisma.entretienHistorique.create({
       data: {
         clientId,
-        vehiculeId,
+        vehiculeId: vehiculeId || null,
+        immatriculation,
         typeService,
         description,
         dateService: new Date(dateService),
         kilometrageService: Number(kilometrageService),
-        // Ajouter le chef_atelier_id ici si vous voulez le lier dans le modèle
+        prochainVideange: Number(prochainVideange),
+        prochainControle: prochainControle ? new Date(prochainControle) : null,
       },
     });
 
@@ -65,7 +67,7 @@ async function createEntretien(req, res) {
 async function updateEntretien(req, res) {
   try {
     const { id } = req.params;
-    const { typeService, description, dateService, kilometrageService } = req.body;
+    const { typeService, description, dateService, kilometrageService, immatriculation, prochainVideange, prochainControle } = req.body;
 
     const entretien = await prisma.entretienHistorique.findUnique({ where: { id } });
     if (!entretien) {
@@ -76,9 +78,12 @@ async function updateEntretien(req, res) {
       where: { id },
       data: {
         ...(typeService && { typeService }),
-        ...(description && { description }),
+        ...(description !== undefined && { description }),
         ...(dateService && { dateService: new Date(dateService) }),
         ...(kilometrageService && { kilometrageService: Number(kilometrageService) }),
+        ...(immatriculation && { immatriculation }),
+        ...(prochainVideange !== undefined && { prochainVideange: Number(prochainVideange) }),
+        ...(prochainControle !== undefined && { prochainControle: prochainControle ? new Date(prochainControle) : null }),
       },
     });
 

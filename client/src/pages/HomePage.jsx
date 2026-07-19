@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import Logo from '../components/Logo'
 
 const slides = [
   {
@@ -305,9 +306,7 @@ export default function HomePage() {
                   className="group p-8 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-primary hover:border-primary transition-all duration-300 text-center"
                 >
                   <div className="w-16 h-16 mx-auto rounded-2xl bg-white shadow-sm flex items-center justify-center mb-5 group-hover:bg-white/20 transition-colors duration-300">
-                    <span className="text-2xl font-extrabold text-gray-900 group-hover:text-white transition-colors duration-300">
-                      {brand.name.charAt(0)}
-                    </span>
+                    <Logo type={brand.slug} className="h-10 w-10" />
                   </div>
                   <h3 className="text-lg font-bold mb-1 group-hover:text-white transition-colors duration-300">{brand.name}</h3>
                   <p className="text-gray-400 text-sm group-hover:text-white/70 transition-colors duration-300">{brand.desc}</p>
@@ -377,15 +376,26 @@ export default function HomePage() {
               </div>
               <div>
                 <h4 className="font-bold mb-1">Téléphone</h4>
-                <p className="text-gray-500 text-sm">+212 XXX-XXXXXX</p>
+                <p className="text-gray-500 text-sm">
+                  <a href="tel:+212524296400" className="hover:text-primary transition-colors">+212 5 24 29 64 00</a>
+                  <br />
+                  <a href="tel:+212661432158" className="hover:text-primary transition-colors">+212 6 61 43 21 58</a>
+                </p>
               </div>
               <div>
                 <h4 className="font-bold mb-1">Email</h4>
-                <p className="text-gray-500 text-sm">contact@bouderka.ma</p>
+                <p className="text-gray-500 text-sm">
+                  <a href="mailto:contact@bouderka.ma" className="hover:text-primary transition-colors">contact@bouderka.ma</a>
+                </p>
               </div>
               <div>
                 <h4 className="font-bold mb-1">Horaires</h4>
-                <p className="text-gray-500 text-sm">Lun - Sam : 9h00 - 19h00</p>
+                <div className="text-gray-500 text-sm leading-relaxed">
+                  <p>Lundi à Vendredi</p>
+                  <p className="font-semibold">08h00 – 13h00 / 14h00 – 17h00</p>
+                  <p className="mt-2">Samedi</p>
+                  <p className="font-semibold">08h00 – 12h00</p>
+                </div>
               </div>
             </div>
             <div>
@@ -457,8 +467,14 @@ export default function HomePage() {
               <h4 className="text-white font-semibold mb-4">Contact</h4>
               <ul className="space-y-2 text-sm">
                 <li>Marrakech, Maroc</li>
-                <li>+212 XXX-XXXXXX</li>
-                <li>contact@bouderka.ma</li>
+                <li>
+                  <a href="tel:+212524296400" className="hover:text-white transition-colors">+212 5 24 29 64 00</a>
+                  <br />
+                  <a href="tel:+212661432158" className="hover:text-white transition-colors">+212 6 61 43 21 58</a>
+                </li>
+                <li>
+                  <a href="mailto:contact@bouderka.ma" className="hover:text-white transition-colors">contact@bouderka.ma</a>
+                </li>
               </ul>
             </div>
           </div>

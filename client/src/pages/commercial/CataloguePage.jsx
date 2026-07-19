@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../services/api'
+import Logo from '../../components/Logo'
 import toast from 'react-hot-toast'
 import StatutBadge from '../../components/StatutBadge'
 import DataTable from '../../components/DataTable'
@@ -13,6 +14,7 @@ const emptyForm = {
   marque: 'VOLKSWAGEN',
   modele: '',
   version: '',
+  finition: '',
   annee: '',
   prix: '',
   prixPromo: '',
@@ -58,6 +60,7 @@ const CataloguePage = () => {
       marque: v.marque,
       modele: v.modele,
       version: v.version || '',
+      finition: v.finition || '',
       annee: v.annee,
       prix: v.prix,
       prixPromo: v.prixPromo || '',
@@ -77,6 +80,7 @@ const CataloguePage = () => {
         marque: form.marque,
         modele: form.modele,
         version: form.version || null,
+        finition: form.finition || null,
         annee: Number(form.annee),
         prix: Number(form.prix),
         prixPromo: form.prixPromo ? Number(form.prixPromo) : null,
@@ -141,7 +145,7 @@ const CataloguePage = () => {
 
       <DataTable
         columns={[
-          { key: 'marque', label: 'Marque', render: (v) => <span className="font-semibold">{v.marque}</span> },
+          { key: 'marque', label: 'Marque', render: (v) => <div className="flex items-center gap-2"><Logo type={v.marque?.toLowerCase()} className="h-5 w-5" /><span className="font-semibold">{v.marque}</span></div> },
           { key: 'modele', label: 'Modèle' },
           { key: 'version', label: 'Version', render: (v) => v.version || '—' },
           { key: 'annee', label: 'Année' },
@@ -186,7 +190,7 @@ const CataloguePage = () => {
         renderMobileCard={(v) => (
           <div key={v.id} className="content-card p-4 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-gray-900">{v.marque} {v.modele}</span>
+              <span className="font-bold text-gray-900 flex items-center gap-2"><Logo type={v.marque?.toLowerCase()} className="h-5 w-5" />{v.marque} {v.modele}</span>
               <StatutBadge statut={v.statut} />
             </div>
             <div className="flex items-center gap-3 text-sm text-gray-500">
@@ -249,8 +253,13 @@ const CataloguePage = () => {
                 </div>
 
                 <div>
-                  <label className="form-label">Version / Finition</label>
+                  <label className="form-label">Version</label>
                   <input type="text" name="version" value={form.version} onChange={handleChange} placeholder="Ex: GTI, S-Line, Style..." className="form-input" />
+                </div>
+
+                <div>
+                  <label className="form-label">Finition</label>
+                  <input type="text" name="finition" value={form.finition} onChange={handleChange} placeholder="Ex: Pack, Luxe, Sport..." className="form-input" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
