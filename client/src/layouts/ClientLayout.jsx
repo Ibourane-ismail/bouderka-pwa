@@ -25,7 +25,7 @@ const ClientLayout = () => {
   return (
     <div className="flex min-h-screen bg-[#f5f5f5]">
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} aria-hidden="true" />
       )}
 
       <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-[#1a1a1a] text-white flex flex-col transform transition-transform duration-200 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
@@ -61,7 +61,7 @@ const ClientLayout = () => {
 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-4 sticky top-0 z-20">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-gray-100">
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-gray-100" aria-label="Ouvrir le menu">
             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
@@ -69,7 +69,7 @@ const ClientLayout = () => {
           <div className="flex-1">
             <span className="text-sm text-gray-500">Espace Client</span>
           </div>
-          <button onClick={handleLogout} className="px-4 py-2 bg-[#CC0000] hover:bg-[#a30000] text-white text-sm font-medium rounded-lg transition-colors">
+          <button onClick={handleLogout} className="px-4 py-2 bg-[#CC0000] hover:bg-[#a30000] text-white text-sm font-medium rounded-lg transition-colors" aria-label="Déconnexion">
             Déconnexion
           </button>
         </header>

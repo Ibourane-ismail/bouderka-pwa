@@ -26,4 +26,10 @@ export const SkeletonTable = ({ rows = 5 }) => (
   </div>
 )
 
+export const PageLoader = () => (
+  <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin" />
+  </div>
+)
+
 export default Skeleton

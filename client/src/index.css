@@ -172,6 +172,89 @@
     padding-right: 2.5rem;
   }
 
+  /* PremiumSelect (Headless UI Listbox) */
+  .ps-field {
+    @apply relative w-full cursor-pointer rounded-lg text-left transition-all duration-300;
+    background: white;
+    border: 1px solid #e5e7eb;
+    padding: 0.625rem 2.5rem 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #111827;
+  }
+  .ps-field:hover {
+    border-color: #d1d5db;
+  }
+  .ps-field:focus {
+    outline: none;
+    border-color: #CC0000;
+    box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.08);
+  }
+  .ps-field:disabled {
+    background: #f9fafb;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+  .ps-field-content {
+    @apply flex items-center gap-2 truncate;
+  }
+  .ps-field-icon {
+    @apply flex-shrink-0 text-gray-400;
+  }
+  .ps-field-text {
+    @apply flex items-center gap-2 truncate;
+  }
+  .ps-field-placeholder {
+    @apply text-gray-400;
+  }
+  .ps-field-chevron {
+    @apply pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400 transition-transform duration-200;
+  }
+
+  .ps-options {
+    @apply absolute z-50 mt-1.5 max-h-60 w-full overflow-auto rounded-xl py-1.5 text-sm;
+    background: white;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(8px);
+    scrollbar-width: thin;
+    scrollbar-color: #e5e7eb transparent;
+  }
+  .ps-options::-webkit-scrollbar {
+    width: 6px;
+  }
+  .ps-options::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .ps-options::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 3px;
+  }
+
+  .ps-option {
+    @apply relative cursor-pointer select-none transition-colors duration-100;
+    padding: 0.625rem 0.875rem;
+  }
+  .ps-option-active {
+    background: #fafafa;
+  }
+  .ps-option-selected {
+    color: #CC0000;
+    font-weight: 600;
+  }
+  .ps-option-content {
+    @apply flex items-center gap-2.5;
+  }
+  .ps-option-icon {
+    @apply flex-shrink-0 w-5 h-5 flex items-center justify-center;
+  }
+  .ps-option-label {
+    @apply truncate;
+  }
+  .ps-option-check {
+    @apply ml-auto flex-shrink-0 text-accent;
+  }
+
   /* Tables */
   .data-table {
     @apply w-full text-left;
@@ -288,6 +371,22 @@
   }
   .empty-state-text {
     @apply text-sm text-gray-400;
+  }
+}
+
+@layer base {
+  *:focus-visible {
+    outline: 2px solid #CC0000;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  button:focus-visible {
+    outline: 2px solid #CC0000;
+    outline-offset: 2px;
   }
 }
 

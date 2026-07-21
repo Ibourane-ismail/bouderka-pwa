@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import api from '../services/api'
 import Navbar from '../components/Navbar'
 import Logo from '../components/Logo'
+import Pagination from '../components/Pagination'
+import { SkeletonCard } from '../components/Skeleton'
+import { useDebounce } from '../hooks/useDebounce'
 
 const brandConfig = {
   volkswagen: { name: 'Volkswagen', apiMarque: 'VOLKSWAGEN', color: '#001E50', tagline: 'Das Auto.' },
@@ -24,23 +27,7 @@ const EQUIPMENT_ICONS = {
   'Radar arrière': 'M13 10V3L4 14h7v7l9-11h-7z',
 }
 
-function EquipmentBadge({ name }) {
-  const iconPath = EQUIPMENT_ICONS[name]
-  return (
-    <span className="equipment-badge">
-      {iconPath ? (
-        <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d={iconPath} />
-        </svg>
-      ) : (
-        <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-      )}
-      {name}
-    </span>
-  )
-}
+const PAGE_SIZE = 9
 
 function VehiclePlaceholder({ marque, className = '' }) {
   return (
@@ -69,13 +56,45 @@ function StatusBadge({ disponibilite }) {
 export default function BrandCataloguePage() {
   const { marque } = useParams()
   const [vehicules, setVehicules] = useState([])
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 })
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const debouncedSearch = useDebounce(search)
+  const isSearching = !!debouncedSearch.trim()
 
   const config = brandConfig[marque] || null
   const validMarque = config && config.apiMarque
 
   useEffect(() => {
+    if (isSearching) return
     const fetchVehicules = async () => {
+      if (!validMarque) {
+        setVehicules([])
+        setPagination({ page: 1, totalPages: 1, total: 0 })
+        setLoading(false)
+        return
+      }
+      setLoading(true)
+      try {
+        const res = await api.get('/api/vehicules', {
+          params: { marque: config.apiMarque, statut: 'DISPONIBLE', page, limit: PAGE_SIZE },
+        })
+        setVehicules(res.data.data?.vehicules || [])
+        setPagination(res.data.data?.pagination || { page: 1, totalPages: 1, total: 0 })
+      } catch (err) {
+        console.error(err)
+        setVehicules([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchVehicules()
+  }, [marque, validMarque, config, page, isSearching])
+
+  useEffect(() => {
+    if (!isSearching) return
+    const fetchAll = async () => {
       if (!validMarque) {
         setVehicules([])
         setLoading(false)
@@ -94,8 +113,30 @@ export default function BrandCataloguePage() {
         setLoading(false)
       }
     }
-    fetchVehicules()
-  }, [marque, validMarque, config])
+    fetchAll()
+  }, [marque, validMarque, config, isSearching])
+
+  useEffect(() => { setPage(1) }, [debouncedSearch])
+
+  const filtered = useMemo(() => {
+    if (!isSearching) return vehicules
+    const q = debouncedSearch.toLowerCase()
+    return vehicules.filter(v =>
+      (v.marque || '').toLowerCase().includes(q) ||
+      (v.modele || '').toLowerCase().includes(q) ||
+      (v.version || '').toLowerCase().includes(q)
+    )
+  }, [vehicules, debouncedSearch, isSearching])
+
+  const displayData = isSearching
+    ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+    : vehicules
+
+  const displayTotalPages = isSearching
+    ? Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+    : pagination.totalPages
+
+  const displayTotal = isSearching ? filtered.length : pagination.total
 
   if (!config) {
     return (
@@ -162,38 +203,68 @@ export default function BrandCataloguePage() {
       {/* Vehicles Grid */}
       <section className="py-12 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {loading ? (
-            <div className="flex items-center justify-center py-24">
-              <div className="w-8 h-8 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin" />
+          {/* Search Bar */}
+          <div className="mb-8 max-w-md">
+            <div className="relative">
+              <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Rechercher par marque, modèle, version..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 transition-colors"
+                aria-label="Rechercher un véhicule"
+              />
             </div>
-          ) : vehicules.length === 0 ? (
+          </div>
+
+          {loading ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="vehicle-card">
+                  <SkeletonCard className="aspect-[16/10]" />
+                  <div className="p-6 space-y-3">
+                    <div className="skeleton h-4 w-1/3" />
+                    <div className="skeleton h-6 w-2/3" />
+                    <div className="skeleton h-4 w-1/2" />
+                    <div className="skeleton h-6 w-1/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : displayData.length === 0 ? (
             <div className="text-center py-24">
               <div className="w-16 h-16 mx-auto rounded-full bg-gray-50 flex items-center justify-center mb-6">
                 <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Aucun véhicule disponible</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Aucun véhicule trouvé</h3>
               <p className="text-gray-400 text-sm mb-8">
-                Aucun véhicule {config.name} n'est actuellement disponible.
+                {debouncedSearch ? 'Aucun résultat pour votre recherche.' : `Aucun véhicule ${config.name} n'est actuellement disponible.`}
               </p>
-              <Link
-                to="/"
-                className="btn-outline"
-              >
-                Retour à l'accueil
-              </Link>
+              {debouncedSearch ? (
+                <button onClick={() => setSearch('')} className="btn-outline">
+                  Réinitialiser la recherche
+                </button>
+              ) : (
+                <Link to="/" className="btn-outline">
+                  Retour à l'accueil
+                </Link>
+              )}
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between mb-10">
                 <span className="text-gray-400 text-sm font-medium uppercase tracking-wider">
-                  {vehicules.length} résultat{vehicules.length > 1 ? 's' : ''}
+                  {displayTotal} résultat{displayTotal > 1 ? 's' : ''}
                 </span>
               </div>
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                {vehicules.map((v, index) => {
+                {displayData.map((v, index) => {
                   const vehicleOptions = Array.isArray(v.options) ? v.options : []
                   const displayOptions = vehicleOptions.slice(0, 4).map(o => typeof o === 'string' ? o : o.nom || o.name || o.label || '').filter(Boolean)
 
@@ -204,7 +275,6 @@ export default function BrandCataloguePage() {
                       className="vehicle-card group block"
                       style={{ animationDelay: `${index * 80}ms` }}
                     >
-                      {/* Image */}
                       <div className="aspect-[16/10] bg-gray-50 relative overflow-hidden">
                         {v.images && v.images.length > 0 ? (
                           <img
@@ -221,7 +291,6 @@ export default function BrandCataloguePage() {
                         </div>
                       </div>
 
-                      {/* Content */}
                       <div className="p-6">
                         <div className="flex items-start justify-between gap-3 mb-3">
                           <div>
@@ -237,14 +306,12 @@ export default function BrandCataloguePage() {
                           <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded flex-shrink-0">{v.annee}</span>
                         </div>
 
-                        {/* Specs */}
                         <div className="flex items-center gap-3 text-xs text-gray-400 mb-4">
                           <span>{v.carburant}</span>
                           <span className="w-1 h-1 rounded-full bg-gray-200" />
                           <span>{v.transmission}</span>
                         </div>
 
-                        {/* Equipment badges */}
                         {displayOptions.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 mb-5">
                             {displayOptions.map((opt) => (
@@ -255,10 +322,9 @@ export default function BrandCataloguePage() {
                           </div>
                         )}
 
-                        {/* Price */}
                         <div className="pt-4 border-t border-gray-100">
                           <span className="price-tag text-lg">
-                            {Number(v.prix).toLocaleString('fr-FR')} <span className="text-sm font-semibold text-gray-400">MAD</span>
+                            <span className="text-sm font-normal text-gray-500">À partir de </span>{Number(v.prix).toLocaleString('fr-FR')} <span className="text-sm font-semibold text-gray-400">MAD</span>
                           </span>
                         </div>
                       </div>
@@ -266,6 +332,13 @@ export default function BrandCataloguePage() {
                   )
                 })}
               </div>
+
+              <Pagination
+                currentPage={page}
+                totalPages={displayTotalPages}
+                totalItems={displayTotal}
+                onPageChange={setPage}
+              />
             </>
           )}
         </div>

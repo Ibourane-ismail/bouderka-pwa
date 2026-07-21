@@ -1,14 +1,28 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../services/api'
 import Logo from '../../components/Logo'
 import toast from 'react-hot-toast'
 import StatutBadge from '../../components/StatutBadge'
 import DataTable from '../../components/DataTable'
+import Pagination from '../../components/Pagination'
+import PremiumSelect from '../../components/PremiumSelect'
 
-const MARQUES = ['VOLKSWAGEN', 'AUDI', 'SKODA']
+const MARQUES = ['VOLKSWAGEN', 'AUDI', 'SKODA', 'PORSCHE']
+const MARQUE_OPTIONS = MARQUES.map(m => ({
+  value: m,
+  label: m.charAt(0) + m.slice(1).toLowerCase(),
+  icon: <Logo type={m.toLowerCase()} className="h-4 w-4" />,
+}))
+const MARQUE_FILTER_OPTIONS = [
+  { value: '', label: 'Toutes', icon: null },
+  ...MARQUE_OPTIONS,
+]
 const CARBURANTS = ['Essence', 'Diesel', 'Hybride', 'Électrique']
+const CARBURANT_OPTIONS = CARBURANTS.map(c => ({ value: c, label: c }))
 const TRANSMISSIONS = ['Manuelle', 'Automatique']
+const TRANSMISSION_OPTIONS = TRANSMISSIONS.map(t => ({ value: t, label: t }))
+const PAGE_SIZE = 10
 
 const emptyForm = {
   marque: 'VOLKSWAGEN',
@@ -18,7 +32,6 @@ const emptyForm = {
   annee: '',
   prix: '',
   prixPromo: '',
-  kilometrage: '',
   carburant: 'Essence',
   transmission: 'Manuelle',
   description: '',
@@ -27,26 +40,34 @@ const emptyForm = {
 const CataloguePage = () => {
   const navigate = useNavigate()
   const [vehicules, setVehicules] = useState([])
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 })
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
   const [submitting, setSubmitting] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [page, setPage] = useState(1)
+  const [filterMarque, setFilterMarque] = useState('')
 
-  const fetchVehicules = async () => {
+  const fetchVehicules = useCallback(async (pageNum = page) => {
     setLoading(true)
     try {
-      const res = await api.get('/api/vehicules', { params: { limit: 500 } })
+      const params = { page: pageNum, limit: PAGE_SIZE }
+      if (filterMarque) params.marque = filterMarque
+      const res = await api.get('/api/vehicules', { params })
       setVehicules(res.data.data.vehicules || [])
+      setPagination(res.data.data.pagination || { page: 1, totalPages: 1, total: 0 })
     } catch (err) {
       console.error(err)
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, filterMarque])
 
-  useEffect(() => { fetchVehicules() }, [])
+  useEffect(() => { fetchVehicules(page) }, [fetchVehicules, page])
+
+  useEffect(() => { setPage(1) }, [filterMarque])
 
   const openAdd = () => {
     setEditingId(null)
@@ -64,7 +85,6 @@ const CataloguePage = () => {
       annee: v.annee,
       prix: v.prix,
       prixPromo: v.prixPromo || '',
-      kilometrage: v.kilometrage,
       carburant: v.carburant,
       transmission: v.transmission,
       description: v.description || '',
@@ -84,7 +104,6 @@ const CataloguePage = () => {
         annee: Number(form.annee),
         prix: Number(form.prix),
         prixPromo: form.prixPromo ? Number(form.prixPromo) : null,
-        kilometrage: Number(form.kilometrage),
         carburant: form.carburant,
         transmission: form.transmission,
         description: form.description,
@@ -117,8 +136,8 @@ const CataloguePage = () => {
     }
   }
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+  const handleFormChange = (name, value) => {
+    setForm(prev => ({ ...prev, [name]: value }))
   }
 
   if (loading) {
@@ -143,6 +162,15 @@ const CataloguePage = () => {
         </button>
       </div>
 
+      <div>
+        <PremiumSelect
+          value={filterMarque}
+          onChange={setFilterMarque}
+          options={MARQUE_FILTER_OPTIONS}
+          placeholder="Filtrer par marque"
+        />
+      </div>
+
       <DataTable
         columns={[
           { key: 'marque', label: 'Marque', render: (v) => <div className="flex items-center gap-2"><Logo type={v.marque?.toLowerCase()} className="h-5 w-5" /><span className="font-semibold">{v.marque}</span></div> },
@@ -154,11 +182,11 @@ const CataloguePage = () => {
             render: (v) => v.prixPromo ? (
               <div className="flex items-center gap-1.5">
                 <span className="text-gray-400 line-through text-xs">{Number(v.prix).toLocaleString('fr-FR')} MAD</span>
-                <span className="font-bold text-accent">{Number(v.prixPromo).toLocaleString('fr-FR')} MAD</span>
+                <span className="font-bold text-accent">À partir de {Number(v.prixPromo).toLocaleString('fr-FR')} MAD</span>
                 <span className="px-1.5 py-0.5 text-[10px] rounded bg-accent text-white font-bold">PROMO</span>
               </div>
             ) : (
-              <span>{Number(v.prix).toLocaleString('fr-FR')} MAD</span>
+              <span><span className="text-gray-400 font-normal">À partir de </span>{Number(v.prix).toLocaleString('fr-FR')} MAD</span>
             ),
           },
           { key: 'statut', label: 'Statut', render: (v) => <StatutBadge statut={v.statut} /> },
@@ -196,18 +224,16 @@ const CataloguePage = () => {
             <div className="flex items-center gap-3 text-sm text-gray-500">
               <span>{v.annee}</span>
               <span className="w-1 h-1 rounded-full bg-gray-300" />
-              <span>{v.kilometrage?.toLocaleString('fr-FR')} km</span>
-              <span className="w-1 h-1 rounded-full bg-gray-300" />
               <span>{v.carburant}</span>
             </div>
             <div className="text-sm font-bold text-gray-900">
               {v.prixPromo ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-accent">{Number(v.prixPromo).toLocaleString('fr-FR')} MAD</span>
+                  <span className="text-accent">À partir de {Number(v.prixPromo).toLocaleString('fr-FR')} MAD</span>
                   <span className="text-gray-400 line-through text-xs">{Number(v.prix).toLocaleString('fr-FR')} MAD</span>
                 </div>
               ) : (
-                <span>{Number(v.prix).toLocaleString('fr-FR')} MAD</span>
+                <span><span className="font-normal text-gray-400">À partir de </span>{Number(v.prix).toLocaleString('fr-FR')} MAD</span>
               )}
             </div>
             <div className="flex gap-2 pt-1">
@@ -219,11 +245,18 @@ const CataloguePage = () => {
                   <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(null) }} className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg">Annuler</button>
                 </div>
               ) : (
-                <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(v.id) }} className="px-3 py-1.5 text-red-500 text-xs font-medium rounded-lg border border-red-200 hover:bg-red-50 transition-colors">Supprimer</button>
+                <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(v.id) }} className="px-3 py-1.5 bg-red-500 text-xs font-medium rounded-lg border border-red-200 hover:bg-red-50 transition-colors">Supprimer</button>
               )}
             </div>
           </div>
         )}
+      />
+
+      <Pagination
+        currentPage={page}
+        totalPages={pagination.totalPages}
+        totalItems={pagination.total}
+        onPageChange={setPage}
       />
 
       {showModal && (
@@ -240,68 +273,65 @@ const CataloguePage = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label className="form-label">Marque</label>
-                  <select name="marque" value={form.marque} onChange={handleChange} required className="form-select">
-                    {MARQUES.map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                </div>
+                <PremiumSelect
+                  label="Marque"
+                  value={form.marque}
+                  onChange={(v) => handleFormChange('marque', v)}
+                  options={MARQUE_OPTIONS}
+                  required
+                />
 
                 <div>
                   <label className="form-label">Modèle</label>
-                  <input type="text" name="modele" value={form.modele} onChange={handleChange} required className="form-input" />
+                  <input type="text" name="modele" value={form.modele} onChange={(e) => handleFormChange('modele', e.target.value)} required className="form-input" />
                 </div>
 
                 <div>
                   <label className="form-label">Version</label>
-                  <input type="text" name="version" value={form.version} onChange={handleChange} placeholder="Ex: GTI, S-Line, Style..." className="form-input" />
+                  <input type="text" name="version" value={form.version} onChange={(e) => handleFormChange('version', e.target.value)} placeholder="Ex: GTI, S-Line, Style..." className="form-input" />
                 </div>
 
                 <div>
                   <label className="form-label">Finition</label>
-                  <input type="text" name="finition" value={form.finition} onChange={handleChange} placeholder="Ex: Pack, Luxe, Sport..." className="form-input" />
+                  <input type="text" name="finition" value={form.finition} onChange={(e) => handleFormChange('finition', e.target.value)} placeholder="Ex: Pack, Luxe, Sport..." className="form-input" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="form-label">Année</label>
-                    <input type="number" name="annee" value={form.annee} onChange={handleChange} required min="1900" className="form-input" />
-                  </div>
-                  <div>
-                    <label className="form-label">Kilométrage</label>
-                    <input type="number" name="kilometrage" value={form.kilometrage} onChange={handleChange} required min="0" className="form-input" />
-                  </div>
+                <div>
+                  <label className="form-label">Année</label>
+                  <input type="number" name="annee" value={form.annee} onChange={(e) => handleFormChange('annee', e.target.value)} required min="1900" className="form-input" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="form-label">Prix (MAD)</label>
-                    <input type="number" name="prix" value={form.prix} onChange={handleChange} required min="0" className="form-input" />
+                    <input type="number" name="prix" value={form.prix} onChange={(e) => handleFormChange('prix', e.target.value)} required min="0" className="form-input" />
                   </div>
                   <div>
                     <label className="form-label">Prix promo (MAD)</label>
-                    <input type="number" name="prixPromo" value={form.prixPromo} onChange={handleChange} min="0" className="form-input" />
+                    <input type="number" name="prixPromo" value={form.prixPromo} onChange={(e) => handleFormChange('prixPromo', e.target.value)} min="0" className="form-input" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="form-label">Carburant</label>
-                    <select name="carburant" value={form.carburant} onChange={handleChange} required className="form-select">
-                      {CARBURANTS.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="form-label">Transmission</label>
-                    <select name="transmission" value={form.transmission} onChange={handleChange} required className="form-select">
-                      {TRANSMISSIONS.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
-                  </div>
+                  <PremiumSelect
+                    label="Carburant"
+                    value={form.carburant}
+                    onChange={(v) => handleFormChange('carburant', v)}
+                    options={CARBURANT_OPTIONS}
+                    required
+                  />
+                  <PremiumSelect
+                    label="Transmission"
+                    value={form.transmission}
+                    onChange={(v) => handleFormChange('transmission', v)}
+                    options={TRANSMISSION_OPTIONS}
+                    required
+                  />
                 </div>
 
                 <div>
                   <label className="form-label">Description</label>
-                  <textarea name="description" value={form.description} onChange={handleChange} rows={3} className="form-input" />
+                  <textarea name="description" value={form.description} onChange={(e) => handleFormChange('description', e.target.value)} rows={3} className="form-input" />
                 </div>
 
                 <div className="flex gap-3 pt-2">

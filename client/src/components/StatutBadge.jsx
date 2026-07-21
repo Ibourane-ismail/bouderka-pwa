@@ -1,3 +1,5 @@
+import React from 'react'
+
 const statutConfig = {
   DISPONIBLE: { className: 'statut-badge-disponible', dotColor: 'bg-emerald-500', label: 'Disponible' },
   CONFIRME: { className: 'statut-badge-confirme', dotColor: 'bg-emerald-500', label: 'Confirmé' },
@@ -25,4 +27,4 @@ const StatutBadge = ({ statut, className = '' }) => {
   )
 }
 
-export default StatutBadge
+export default React.memo(StatutBadge)

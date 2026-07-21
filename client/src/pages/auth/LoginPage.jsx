@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Logo from '../../components/Logo';
 import toast from 'react-hot-toast';
@@ -42,6 +43,10 @@ const LoginPage = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-slate-700 hover:text-[#CC0000] transition-all duration-200 mb-6 group">
+            <ArrowLeft className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1" />
+            <span className="text-sm">Retour à l'accueil</span>
+          </Link>
           <h2 className="text-xl font-semibold text-[#1a1a1a] mb-6">Connexion</h2>
 
           <div className="space-y-4">

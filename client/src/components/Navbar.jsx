@@ -109,7 +109,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <a href="#hero" onClick={(e) => handleNav(e, '#hero')} className="flex-shrink-0 flex items-center">
-            <Logo className="h-12 lg:h-16" />
+            <Logo className={`h-12 lg:h-16 transition-all duration-300 ${scrolled ? 'brightness-0' : ''}`} />
           </a>
 
           {/* Desktop nav */}

@@ -19,6 +19,7 @@ enum Marque {
   VOLKSWAGEN
   AUDI
   SKODA
+  PORSCHE
 }
 
 enum StatutVehicule {
@@ -88,7 +89,7 @@ model Vehicule {
   annee           Int
   prix            Decimal        @db.Decimal(10, 2)
   prixPromo       Decimal?       @db.Decimal(10, 2)
-  kilometrage     Int
+  
   carburant       String
   transmission    String
   description     String

@@ -4,6 +4,7 @@ import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Logo from '../components/Logo'
+import Skeleton from '../components/Skeleton'
 import toast from 'react-hot-toast'
 
 const brandConfig = {
@@ -156,10 +157,27 @@ export default function VehicleDetailPage() {
     return (
       <div className="min-h-screen bg-white">
         <Navbar />
-        <div className="pt-24 flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="w-8 h-8 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-gray-400 text-sm">Chargement...</p>
+        <div className="pt-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+            <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
+              <div className="lg:col-span-3 space-y-4">
+                <Skeleton className="aspect-[16/10] rounded-2xl" />
+                <div className="flex gap-2">
+                  {[1, 2, 3].map(i => <Skeleton key={i} className="w-20 h-16 rounded-lg" />)}
+                </div>
+              </div>
+              <div className="lg:col-span-2 space-y-6">
+                <Skeleton className="h-6 w-24 rounded" />
+                <Skeleton className="h-10 w-3/4 rounded-lg" />
+                <Skeleton className="h-5 w-1/2 rounded" />
+                <Skeleton className="h-10 w-1/3 rounded-lg" />
+                <div className="grid grid-cols-2 gap-3">
+                  {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-20 rounded-xl" />)}
+                </div>
+                <Skeleton className="h-12 w-full rounded-lg" />
+                <Skeleton className="h-12 w-full rounded-lg" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -315,7 +333,7 @@ export default function VehicleDetailPage() {
                 {/* Price */}
                 <div className="mt-5">
                   <span className="price-tag text-3xl sm:text-4xl">
-                    {Number(vehicule.prix).toLocaleString('fr-FR')} <span className="text-base font-semibold text-gray-400">MAD</span>
+                    <span className="text-base font-normal text-gray-500">À partir de </span>{Number(vehicule.prix).toLocaleString('fr-FR')} <span className="text-base font-semibold text-gray-400">MAD</span>
                   </span>
                 </div>
 
@@ -497,7 +515,7 @@ export default function VehicleDetailPage() {
                     <h3 className="font-bold text-gray-900">{v.modele}</h3>
                     <p className="text-xs text-gray-400 mt-1">{v.annee} · {v.carburant} · {v.transmission}</p>
                     <div className="mt-3 pt-3 border-t border-gray-100">
-                      <span className="font-bold text-gray-900">{Number(v.prix).toLocaleString('fr-FR')} <span className="text-xs font-semibold text-gray-400">MAD</span></span>
+                      <span className="font-bold text-gray-900"><span className="font-normal text-gray-400 text-xs">À partir de </span>{Number(v.prix).toLocaleString('fr-FR')} <span className="text-xs font-semibold text-gray-400">MAD</span></span>
                     </div>
                   </div>
                 </Link>
@@ -590,7 +608,7 @@ export default function VehicleDetailPage() {
 
               <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 mb-6">
                 <div className="font-bold text-gray-900">{vehicule.marque} {vehicule.modele}</div>
-                <div className="text-sm text-gray-400">{vehicule.annee} · {Number(vehicule.prix).toLocaleString('fr-FR')} MAD</div>
+                <div className="text-sm text-gray-400">{vehicule.annee} · <span className="font-normal">À partir de </span>{Number(vehicule.prix).toLocaleString('fr-FR')} MAD</div>
               </div>
 
               <div className="mb-6">

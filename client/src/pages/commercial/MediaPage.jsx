@@ -213,7 +213,7 @@ const MediaPage = () => {
 
           <div className="content-card p-6 mb-6">
             <h2 className="text-xl font-bold text-gray-900">{selectedVehicule.marque} {selectedVehicule.modele}</h2>
-            <p className="text-sm text-gray-400 mt-1">{selectedVehicule.annee} · {Number(selectedVehicule.prix).toLocaleString('fr-FR')} MAD</p>
+            <p className="text-sm text-gray-400 mt-1">{selectedVehicule.annee} · <span className="font-normal">À partir de </span>{Number(selectedVehicule.prix).toLocaleString('fr-FR')} MAD</p>
           </div>
 
           <div className="content-card p-6 mb-6">

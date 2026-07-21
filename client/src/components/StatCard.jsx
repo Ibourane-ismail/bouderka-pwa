@@ -1,3 +1,5 @@
+import React from 'react'
+
 const StatCard = ({ title, value, subtitle, icon, trend, className = '' }) => (
   <div className={`stat-card ${className}`}>
     <div className="flex items-center justify-between mb-3">
@@ -28,4 +30,4 @@ const StatCard = ({ title, value, subtitle, icon, trend, className = '' }) => (
   </div>
 )
 
-export default StatCard
+export default React.memo(StatCard)

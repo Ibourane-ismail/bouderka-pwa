@@ -83,30 +83,33 @@ async function createVehicule(req, res) {
       return response(res, false, {}, 'Validation échouée', 400);
     }
 
-    const { marque, modele, version, finition, annee, prix, prixPromo, kilometrage, carburant, transmission, description, couleur, couleurs, options, imagesCouleurs, disponibilite, images } = req.body;
+    const { marque, modele, version, finition, annee, prix, prixPromo, carburant, transmission, description, couleur, couleurs, options, imagesCouleurs, disponibilite, images } = req.body;
 
-    const vehicule = await prisma.vehicule.create({
-      data: {
-        marque,
-        modele,
-        version: version || null,
-        finition: finition || null,
-        annee: Number(annee),
-        prix: Number(prix),
-        prixPromo: prixPromo ? Number(prixPromo) : null,
-        kilometrage: Number(kilometrage),
-        carburant,
-        transmission,
-        description,
-        couleur: couleur || null,
-        couleurs: couleurs || null,
-        options: options || null,
-        imagesCouleurs: imagesCouleurs || null,
-        disponibilite: disponibilite || 'Disponible',
-        images: images || [],
-        statut: 'DISPONIBLE',
-      },
-    });
+    console.log('REQ BODY =', JSON.stringify(req.body, null, 2));
+
+    const data = {
+      marque,
+      modele,
+      version: version || null,
+      finition: finition || null,
+      annee: Number(annee),
+      prix: Number(prix),
+      prixPromo: prixPromo ? Number(prixPromo) : null,
+      carburant,
+      transmission,
+      description,
+      couleur: couleur || null,
+      couleurs: couleurs || null,
+      options: options || null,
+      imagesCouleurs: imagesCouleurs || null,
+      disponibilite: disponibilite || 'Disponible',
+      images: images || [],
+      statut: 'DISPONIBLE',
+    };
+
+    console.log('DATA PRISMA =', JSON.stringify(data, null, 2));
+
+    const vehicule = await prisma.vehicule.create({ data });
 
     return response(res, true, { vehicule }, 'Véhicule créé avec succès', 201);
   } catch (err) {

@@ -1,4 +1,4 @@
-const DataTable = ({ columns, data, renderMobileCard, onRowClick, className = '' }) => {
+const DataTable = ({ columns, data, renderMobileCard, onRowClick, className = '', ariaLabel = 'Tableau de données' }) => {
   if (!data || data.length === 0) {
     return (
       <div className="empty-state">
@@ -18,11 +18,11 @@ const DataTable = ({ columns, data, renderMobileCard, onRowClick, className = ''
       {/* Desktop Table */}
       <div className={`content-card overflow-hidden hidden md:block ${className}`}>
         <div className="overflow-x-auto">
-          <table className="data-table">
+          <table className="data-table" role="table" aria-label={ariaLabel}>
             <thead>
               <tr>
                 {columns.map((col) => (
-                  <th key={col.key} className={col.className || ''}>{col.label}</th>
+                  <th key={col.key} className={col.className || ''} scope="col">{col.label}</th>
                 ))}
               </tr>
             </thead>
@@ -46,7 +46,7 @@ const DataTable = ({ columns, data, renderMobileCard, onRowClick, className = ''
       </div>
 
       {/* Mobile Cards */}
-      <div className="space-y-3 md:hidden">
+      <div className="space-y-3 md:hidden" role="list" aria-label={ariaLabel}>
         {data.map((row, i) => (
           renderMobileCard ? (
             renderMobileCard(row, i)
@@ -55,6 +55,7 @@ const DataTable = ({ columns, data, renderMobileCard, onRowClick, className = ''
               key={row.id || i}
               className="content-card p-4 space-y-2"
               onClick={() => onRowClick?.(row)}
+              role="listitem"
             >
               {columns.map((col) => (
                 <div key={col.key} className="flex items-center justify-between">
