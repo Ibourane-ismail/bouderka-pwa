@@ -6,7 +6,7 @@ import Pagination from '../../components/Pagination'
 import { useDebounce } from '../../hooks/useDebounce'
 import toast from 'react-hot-toast'
 
-const MARQUES = ['', 'VOLKSWAGEN', 'AUDI', 'SKODA']
+const MARQUES = ['', 'VOLKSWAGEN', 'AUDI', 'SKODA', 'PORSCHE']
 const PAGE_SIZE = 9
 
 const EQUIPMENT_ICONS = {

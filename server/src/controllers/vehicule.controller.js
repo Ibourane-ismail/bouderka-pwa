@@ -85,8 +85,6 @@ async function createVehicule(req, res) {
 
     const { marque, modele, version, finition, annee, prix, prixPromo, carburant, transmission, description, couleur, couleurs, options, imagesCouleurs, disponibilite, images } = req.body;
 
-    console.log('REQ BODY =', JSON.stringify(req.body, null, 2));
-
     const data = {
       marque,
       modele,
@@ -97,7 +95,7 @@ async function createVehicule(req, res) {
       prixPromo: prixPromo ? Number(prixPromo) : null,
       carburant,
       transmission,
-      description,
+      description: description || '',
       couleur: couleur || null,
       couleurs: couleurs || null,
       options: options || null,
@@ -106,8 +104,6 @@ async function createVehicule(req, res) {
       images: images || [],
       statut: 'DISPONIBLE',
     };
-
-    console.log('DATA PRISMA =', JSON.stringify(data, null, 2));
 
     const vehicule = await prisma.vehicule.create({ data });
 
@@ -122,7 +118,7 @@ async function createVehicule(req, res) {
 async function updateVehicule(req, res) {
   try {
     const { id } = req.params;
-    const { marque, modele, version, finition, annee, prix, prixPromo, kilometrage, carburant, transmission, description, couleur, couleurs, options, imagesCouleurs, disponibilite, images, statut } = req.body;
+    const { marque, modele, version, finition, annee, prix, prixPromo, carburant, transmission, description, couleur, couleurs, options, imagesCouleurs, disponibilite, images, statut } = req.body;
 
     const vehicule = await prisma.vehicule.findUnique({ where: { id } });
     if (!vehicule) {
@@ -139,16 +135,15 @@ async function updateVehicule(req, res) {
         ...(annee && { annee: Number(annee) }),
         ...(prix && { prix: Number(prix) }),
         ...(prixPromo !== undefined && { prixPromo: prixPromo ? Number(prixPromo) : null }),
-        ...(kilometrage && { kilometrage: Number(kilometrage) }),
         ...(carburant && { carburant }),
         ...(transmission && { transmission }),
-        ...(description && { description }),
+        ...(description !== undefined && { description }),
         ...(couleur !== undefined && { couleur: couleur || null }),
         ...(couleurs !== undefined && { couleurs }),
         ...(options !== undefined && { options }),
         ...(imagesCouleurs !== undefined && { imagesCouleurs }),
         ...(disponibilite !== undefined && { disponibilite: disponibilite || 'Disponible' }),
-        ...(images && { images }),
+        ...(images !== undefined && { images }),
         ...(statut && { statut }),
       },
     });

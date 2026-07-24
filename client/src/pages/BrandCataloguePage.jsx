@@ -11,7 +11,7 @@ const brandConfig = {
   volkswagen: { name: 'Volkswagen', apiMarque: 'VOLKSWAGEN', color: '#001E50', tagline: 'Das Auto.' },
   skoda: { name: 'Škoda', apiMarque: 'SKODA', color: '#4BA82E', tagline: 'Simply Clever' },
   audi: { name: 'Audi', apiMarque: 'AUDI', color: '#BB0A30', tagline: 'Vorsprung durch Technik' },
-  porsche: { name: 'Porsche', apiMarque: null, color: '#A30000', tagline: 'There is no substitute' },
+  porsche: { name: 'Porsche', apiMarque: 'PORSCHE', color: '#A30000', tagline: 'There is no substitute' },
 }
 
 const EQUIPMENT_ICONS = {

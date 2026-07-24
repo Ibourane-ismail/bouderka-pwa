@@ -26,7 +26,6 @@ const NotificationsPage = React.lazy(() => import('./pages/client/NotificationsP
 const ProfilPage = React.lazy(() => import('./pages/client/ProfilPage'))
 
 const CommercialDashboard = React.lazy(() => import('./pages/commercial/DashboardPage'))
-const CommercialCatalogue = React.lazy(() => import('./pages/commercial/CataloguePage'))
 const TestDrivesPage = React.lazy(() => import('./pages/commercial/TestDrivesPage'))
 const CommercialMedia = React.lazy(() => import('./pages/commercial/MediaPage'))
 
@@ -107,7 +106,6 @@ function App() {
           }
         >
           <Route path="dashboard" element={<CommercialDashboard />} />
-          <Route path="catalogue" element={<CommercialCatalogue />} />
           <Route path="test-drives" element={<TestDrivesPage />} />
           <Route path="media" element={<CommercialMedia />} />
         </Route>

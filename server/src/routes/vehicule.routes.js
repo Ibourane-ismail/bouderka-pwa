@@ -22,7 +22,6 @@ router.post('/', verifyAccessToken, roleGuard('COMMERCIAL', 'ADMIN'), [
   body('modele').not().isEmpty().withMessage('Modèle requis'),
   body('annee').isInt({ min: 1900 }).withMessage('Année invalide'),
   body('prix').isFloat({ min: 0 }).withMessage('Prix invalide'),
-  body('kilometrage').optional().isInt({ min: 0 }).withMessage('Kilométrage invalide'),
   body('carburant').not().isEmpty().withMessage('Carburant requis'),
   body('transmission').not().isEmpty().withMessage('Transmission requise'),
 ], createVehicule);
@@ -30,7 +29,6 @@ router.post('/', verifyAccessToken, roleGuard('COMMERCIAL', 'ADMIN'), [
 router.put('/:id', verifyAccessToken, roleGuard('COMMERCIAL', 'CHEF_ATELIER', 'ADMIN'), [
   body('annee').optional().isInt({ min: 1900 }).withMessage('Année invalide'),
   body('prix').optional().isFloat({ min: 0 }).withMessage('Prix invalide'),
-  body('kilometrage').optional().isInt({ min: 0 }).withMessage('Kilométrage invalide'),
 ], updateVehicule);
 
 router.delete('/:id', verifyAccessToken, roleGuard('COMMERCIAL', 'ADMIN'), deleteVehicule);
