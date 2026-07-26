@@ -20,7 +20,7 @@ app.use(cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'production' ? 10 : 1000,
+  max: process.env.NODE_ENV === 'production' ? 300 : 1000,
   message: { success: false, message: 'Trop de requêtes, réessayez plus tard.' }
 });
 app.use('/api', limiter);

@@ -3,7 +3,6 @@ import api from '../../services/api'
 import StatCard from '../../components/StatCard'
 import StatutBadge from '../../components/StatutBadge'
 import DataTable from '../../components/DataTable'
-import { SkeletonText } from '../../components/Skeleton'
 
 const DashboardPage = () => {
   const [rdv, setRdv] = useState([])

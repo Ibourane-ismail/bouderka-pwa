@@ -20,7 +20,7 @@ const ProfilPage = () => {
     e.preventDefault()
     setLoadingProfile(true)
     try {
-      const res = await api.put('/api/auth/me', form)
+      await api.put('/api/auth/me', form)
       toast.success('Profil mis à jour')
     } catch (err) {
       toast.error(err.response?.data?.message || 'Erreur')

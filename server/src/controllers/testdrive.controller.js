@@ -3,13 +3,9 @@
  */
 const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
+const { response } = require('../utils/response');
 
 const prisma = new PrismaClient();
-
-// Format de réponse standardisé
-function response(res, success, data = {}, message = '', statusCode = 200) {
-  return res.status(statusCode).json({ success, data, message });
-}
 
 // POST /api/testdrive - CLIENT
 async function creerTestDrive(req, res) {
@@ -82,7 +78,10 @@ async function updateStatutTestDrive(req, res) {
     const { id } = req.params;
     const { statut, valideParId } = req.body;
 
-    const testDrive = await prisma.testDrive.findUnique({ where: { id } });
+    const testDrive = await prisma.testDrive.findUnique({
+      where: { id },
+      include: { vehicule: { select: { marque: true, modele: true } } },
+    });
     if (!testDrive) {
       return response(res, false, {}, 'Test drive non trouvé', 404);
     }
@@ -101,6 +100,25 @@ async function updateStatutTestDrive(req, res) {
       where: { id },
       data: updateData,
     });
+
+    // Notifier le client si le test drive est approuvé ou refusé
+    if (statut === 'APPROUVE' || statut === 'REFUSE') {
+      try {
+        const vehiculeLabel = testDrive.vehicule ? `${testDrive.vehicule.marque} ${testDrive.vehicule.modele}` : 'ce véhicule';
+        await prisma.notification.create({
+          data: {
+            userId: testDrive.clientId,
+            titre: statut === 'APPROUVE' ? 'Test drive approuvé' : 'Test drive refusé',
+            message: statut === 'APPROUVE'
+              ? `Votre demande d'essai pour ${vehiculeLabel} a été approuvée.`
+              : `Votre demande d'essai pour ${vehiculeLabel} a été refusée.`,
+            type: 'TEST_DRIVE',
+          },
+        });
+      } catch (notifErr) {
+        console.error('Erreur création notification test drive:', notifErr);
+      }
+    }
 
     return response(res, true, { testDrive: updated }, 'Statut mis à jour');
   } catch (err) {

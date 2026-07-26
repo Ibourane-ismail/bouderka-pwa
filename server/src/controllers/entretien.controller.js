@@ -3,13 +3,9 @@
  */
 const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
+const { response } = require('../utils/response');
 
 const prisma = new PrismaClient();
-
-// Format de réponse standardisé
-function response(res, success, data = {}, message = '', statusCode = 200) {
-  return res.status(statusCode).json({ success, data, message });
-}
 
 // GET /api/entretiens/mes-entretiens - CLIENT
 async function getMesEntretiens(req, res) {
@@ -40,7 +36,6 @@ async function createEntretien(req, res) {
     }
 
     const { clientId, vehiculeId, immatriculation, typeService, description, dateService, kilometrageService, prochainVideange, prochainControle } = req.body;
-    const chefAtelierId = req.user.userId;
 
     const entretien = await prisma.entretienHistorique.create({
       data: {

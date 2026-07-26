@@ -116,7 +116,7 @@ const CalendrierPage = () => {
         </div>
       ) : (
         <div className="space-y-1">
-          {rdv.map((r, i) => {
+          {rdv.map((r) => {
             const statusActions = []
             if (r.statut === 'EN_ATTENTE') {
               statusActions.push(

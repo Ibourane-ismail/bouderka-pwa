@@ -2,14 +2,9 @@
  * Contrôleur pour la gestion des clients (ADMIN uniquement)
  */
 const { PrismaClient } = require('@prisma/client');
-const { validationResult } = require('express-validator');
+const { response } = require('../utils/response');
 
 const prisma = new PrismaClient();
-
-// Format de réponse standardisé
-function response(res, success, data = {}, message = '', statusCode = 200) {
-  return res.status(statusCode).json({ success, data, message });
-}
 
 // GET /api/clients - ADMIN
 async function getClients(req, res) {

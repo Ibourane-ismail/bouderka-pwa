@@ -2,13 +2,9 @@
  * Contrôleur pour la gestion des notifications
  */
 const { PrismaClient } = require('@prisma/client');
+const { response } = require('../utils/response');
 
 const prisma = new PrismaClient();
-
-// Format de réponse standardisé
-function response(res, success, data = {}, message = '', statusCode = 200) {
-  return res.status(statusCode).json({ success, data, message });
-}
 
 // GET /api/notifications - utilisateur connecté
 async function getNotifications(req, res) {

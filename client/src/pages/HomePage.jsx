@@ -425,6 +425,35 @@ export default function HomePage() {
               </p>
             </div>
           </div>
+
+          {/* Carte de localisation Google Maps */}
+          <div className="mt-12 rounded-2xl overflow-hidden border border-gray-100">
+            <div className="aspect-[16/9] w-full">
+              <iframe
+                src="https://www.google.com/maps?q=Bouderka+sarl%2C+km.16%2C+5+Casablanca+Rd%2C+Marrakesh+40000%2C+Maroc&output=embed"
+                title="Localisation de Bouderka SARL sur Google Maps"
+                className="w-full h-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
+            </div>
+            <div className="p-6 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h4 className="font-bold mb-1">Notre localisation</h4>
+                <p className="text-gray-500 text-sm">Km 16, 5 route de Casablanca, Marrakech 40000, Maroc</p>
+              </div>
+              {/* Ouvre l'itinéraire officiel dans un nouvel onglet */}
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Bouderka+sarl%2C+km.16%2C+5+Casablanca+Rd%2C+Marrakesh+40000%2C+Maroc"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-white font-semibold hover:opacity-90 transition-colors shadow-lg shrink-0"
+              >
+                Ouvrir dans Google Maps
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 

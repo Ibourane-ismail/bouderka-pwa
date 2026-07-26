@@ -3,13 +3,9 @@
  */
 const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
+const { response } = require('../utils/response');
 
 const prisma = new PrismaClient();
-
-// Format de réponse standardisé
-function response(res, success, data = {}, message = '', statusCode = 200) {
-  return res.status(statusCode).json({ success, data, message });
-}
 
 // GET /api/vehicules - Liste publique avec filtres
 async function getVehicules(req, res) {

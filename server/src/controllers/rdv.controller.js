@@ -3,14 +3,10 @@
  */
 const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
-const { startOfDay, endOfDay, addDays } = require('date-fns');
+const { startOfDay, endOfDay } = require('date-fns');
+const { response } = require('../utils/response');
 
 const prisma = new PrismaClient();
-
-// Format de réponse standardisé
-function response(res, success, data = {}, message = '', statusCode = 200) {
-  return res.status(statusCode).json({ success, data, message });
-}
 
 // POST /api/rdv - CLIENT crée un RDV
 async function creerRdv(req, res) {
@@ -111,6 +107,25 @@ async function updateStatutRdv(req, res) {
       where: { id },
       data: { statut },
     });
+
+    // Notifier le client si le RDV est confirmé ou refusé
+    if (statut === 'CONFIRME' || statut === 'REFUSE') {
+      try {
+        const dateFormatee = new Date(rdv.dateHeure).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' });
+        await prisma.notification.create({
+          data: {
+            userId: rdv.clientId,
+            titre: statut === 'CONFIRME' ? 'Rendez-vous confirmé' : 'Rendez-vous refusé',
+            message: statut === 'CONFIRME'
+              ? `Votre rendez-vous du ${dateFormatee} (${rdv.motif}) a été confirmé.`
+              : `Votre rendez-vous du ${dateFormatee} (${rdv.motif}) a été refusé.`,
+            type: 'RDV',
+          },
+        });
+      } catch (notifErr) {
+        console.error('Erreur création notification RDV:', notifErr);
+      }
+    }
 
     return response(res, true, { rdv: updated }, 'Statut mis à jour');
   } catch (err) {
