@@ -24,11 +24,15 @@ router.post('/', verifyAccessToken, roleGuard('COMMERCIAL', 'ADMIN'), [
   body('prix').isFloat({ min: 0 }).withMessage('Prix invalide'),
   body('carburant').not().isEmpty().withMessage('Carburant requis'),
   body('transmission').not().isEmpty().withMessage('Transmission requise'),
+  body('images').optional().isArray().withMessage('Images invalides'),
+  body('images.*').isURL({ protocols: ['http', 'https'], require_protocol: true }).isLength({ max: 2000 }).withMessage('Chaque image doit être une URL http(s) valide (2000 caractères max)'),
 ], createVehicule);
 
 router.put('/:id', verifyAccessToken, roleGuard('COMMERCIAL', 'CHEF_ATELIER', 'ADMIN'), [
   body('annee').optional().isInt({ min: 1900 }).withMessage('Année invalide'),
   body('prix').optional().isFloat({ min: 0 }).withMessage('Prix invalide'),
+  body('images').optional().isArray().withMessage('Images invalides'),
+  body('images.*').isURL({ protocols: ['http', 'https'], require_protocol: true }).isLength({ max: 2000 }).withMessage('Chaque image doit être une URL http(s) valide (2000 caractères max)'),
 ], updateVehicule);
 
 router.delete('/:id', verifyAccessToken, roleGuard('COMMERCIAL', 'ADMIN'), deleteVehicule);

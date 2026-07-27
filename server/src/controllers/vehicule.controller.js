@@ -113,6 +113,11 @@ async function createVehicule(req, res) {
 // PUT /api/vehicules/:id - Modifier (COMMERCIAL uniquement)
 async function updateVehicule(req, res) {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return response(res, false, {}, 'Validation échouée', 400);
+    }
+
     const { id } = req.params;
     const { marque, modele, version, finition, annee, prix, prixPromo, carburant, transmission, description, couleur, couleurs, options, imagesCouleurs, disponibilite, images, statut } = req.body;
 

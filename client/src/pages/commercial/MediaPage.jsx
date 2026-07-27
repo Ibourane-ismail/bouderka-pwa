@@ -199,8 +199,14 @@ export default function MediaPage() {
 
   // --- Photos / galerie ---
   const addPhoto = async () => {
-    if (!newPhotoUrl.trim() || !selectedVehicle) return
-    const updated = [...(selectedVehicle.images || []), newPhotoUrl.trim()]
+    const url = newPhotoUrl.trim()
+    if (!url || !selectedVehicle) return
+    // Rejette les valeurs qui ne sont pas des URL http(s) valides (ex: image collée en base64)
+    if (!/^https?:\/\//i.test(url) || url.length > 2000) {
+      toast.error('URL invalide : doit commencer par http:// ou https:// (2000 caractères max)')
+      return
+    }
+    const updated = [...(selectedVehicle.images || []), url]
     const saved = await patchSelected({ images: updated })
     if (saved) setNewPhotoUrl('')
   }

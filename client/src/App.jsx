@@ -32,6 +32,7 @@ const CommercialMedia = React.lazy(() => import('./pages/commercial/MediaPage'))
 const AtelierDashboard = React.lazy(() => import('./pages/atelier/DashboardPage'))
 const CalendrierPage = React.lazy(() => import('./pages/atelier/CalendrierPage'))
 const VehiculesPage = React.lazy(() => import('./pages/atelier/VehiculesPage'))
+const EntretiensPage = React.lazy(() => import('./pages/atelier/EntretiensPage'))
 
 const AdminDashboard = React.lazy(() => import('./pages/admin/DashboardPage'))
 const ClientsPage = React.lazy(() => import('./pages/admin/ClientsPage'))
@@ -122,6 +123,7 @@ function App() {
           <Route path="dashboard" element={<AtelierDashboard />} />
           <Route path="calendrier" element={<CalendrierPage />} />
           <Route path="vehicules" element={<VehiculesPage />} />
+          <Route path="entretiens" element={<EntretiensPage />} />
         </Route>
 
         {/* ===== Administrateur ===== */}

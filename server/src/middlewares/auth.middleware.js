@@ -4,9 +4,13 @@
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 
-// Load JWT secret from environment variables
-const JWT_SECRET = process.env.JWT_SECRET || 'your_default_jwt_secret';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your_default_refresh_secret';
+// Load JWT secrets from environment variables (required, no insecure fallback)
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
+  throw new Error('JWT_SECRET et JWT_REFRESH_SECRET doivent être définis dans les variables d\'environnement (.env)');
+}
 
 /**
  * Middleware to verify access token from httpOnly cookie named 'accessToken'.

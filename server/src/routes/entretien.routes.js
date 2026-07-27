@@ -3,11 +3,19 @@ const router = express.Router();
 const { body } = require('express-validator');
 
 const {
+  getEntretiens,
+  getClientsAtelier,
   getMesEntretiens,
   createEntretien,
   updateEntretien,
 } = require('../controllers/entretien.controller');
 const { verifyAccessToken, roleGuard } = require('../middlewares/auth.middleware');
+
+// GET /api/entretiens - CHEF_ATELIER / ADMIN liste tous les entretiens
+router.get('/', verifyAccessToken, roleGuard('CHEF_ATELIER', 'ADMIN'), getEntretiens);
+
+// GET /api/entretiens/clients - CHEF_ATELIER / ADMIN liste des clients
+router.get('/clients', verifyAccessToken, roleGuard('CHEF_ATELIER', 'ADMIN'), getClientsAtelier);
 
 // GET /api/entretiens/mes-entretiens - CLIENT / ADMIN
 router.get('/mes-entretiens', verifyAccessToken, roleGuard('CLIENT', 'ADMIN'), getMesEntretiens);
