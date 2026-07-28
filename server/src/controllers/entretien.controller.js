@@ -1,11 +1,9 @@
 /**
  * Contrôleur pour la gestion de l'historique des entretiens
  */
-const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
 const { response } = require('../utils/response');
-
-const prisma = new PrismaClient();
+const prisma = require('../config/prisma');
 
 // GET /api/entretiens - CHEF_ATELIER liste tous les entretiens enregistrés
 async function getEntretiens(req, res) {

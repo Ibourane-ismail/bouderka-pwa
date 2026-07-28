@@ -1,10 +1,8 @@
 /**
  * Contrôleur pour la gestion des notifications
  */
-const { PrismaClient } = require('@prisma/client');
 const { response } = require('../utils/response');
-
-const prisma = new PrismaClient();
+const prisma = require('../config/prisma');
 
 // GET /api/notifications - utilisateur connecté
 async function getNotifications(req, res) {

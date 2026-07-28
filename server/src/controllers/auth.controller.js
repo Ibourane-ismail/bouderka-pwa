@@ -4,9 +4,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
-const { PrismaClient } = require('@prisma/client');
-
-const prisma = new PrismaClient();
+const prisma = require('../config/prisma');
 
 // JWT configuration (required, no insecure fallback)
 const JWT_SECRET = process.env.JWT_SECRET;

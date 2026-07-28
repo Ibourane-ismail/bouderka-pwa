@@ -1,12 +1,10 @@
 /**
  * Contrôleur pour la gestion des rendez-vous
  */
-const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
 const { startOfDay, endOfDay } = require('date-fns');
 const { response } = require('../utils/response');
-
-const prisma = new PrismaClient();
+const prisma = require('../config/prisma');
 
 // POST /api/rdv - CLIENT crée un RDV
 async function creerRdv(req, res) {

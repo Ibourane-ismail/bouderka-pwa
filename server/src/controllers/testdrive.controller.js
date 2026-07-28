@@ -1,11 +1,9 @@
 /**
  * Contrôleur pour la gestion des test drives
  */
-const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
 const { response } = require('../utils/response');
-
-const prisma = new PrismaClient();
+const prisma = require('../config/prisma');
 
 // POST /api/testdrive - CLIENT
 async function creerTestDrive(req, res) {

@@ -1,11 +1,9 @@
 /**
  * Contrôleur pour la gestion des plages bloquées
  */
-const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
 const { response } = require('../utils/response');
-
-const prisma = new PrismaClient();
+const prisma = require('../config/prisma');
 
 // GET /api/plages - CHEF_ATELIER
 async function getPlages(req, res) {

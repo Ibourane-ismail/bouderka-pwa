@@ -1,10 +1,8 @@
 /**
  * Contrôleur pour la gestion des clients (ADMIN uniquement)
  */
-const { PrismaClient } = require('@prisma/client');
 const { response } = require('../utils/response');
-
-const prisma = new PrismaClient();
+const prisma = require('../config/prisma');
 
 // GET /api/clients - ADMIN
 async function getClients(req, res) {
