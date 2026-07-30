@@ -57,6 +57,12 @@ enum StatutPlageBloquee {
   ANNULEE
 }
 
+enum ModePaiement {
+  ESPECES
+  CARTE_BANCAIRE
+  VIREMENT
+}
+
 // Models
 model User {
   id            String    @id @default(uuid())
@@ -78,6 +84,8 @@ model User {
   notifications      Notification[]
   plagesBloquees     PlageBloquee[] @relation("CreeParUser")
   valideParTestDrives TestDrive[]          @relation("ValideParUser")
+  ventesClient       Vente[]        @relation("ClientVentes")
+  ventesCommercial   Vente[]        @relation("CommercialVentes")
 }
 
 model Vehicule {
@@ -106,6 +114,7 @@ model Vehicule {
   // Relations
   testDrives   TestDrive[]
   entretiens   EntretienHistorique[]
+  ventes       Vente[]
 }
 
 model RendezVous {
@@ -183,4 +192,23 @@ model PlageBloquee {
 
   // Relations
   creePar    User            @relation("CreeParUser", fields: [creeParId], references: [id])
+}
+
+model Vente {
+  id              String       @id @default(uuid())
+  vehiculeId      String
+  clientId        String
+  commercialId    String
+  cinClient       String
+  telephone       String
+  dateVente       DateTime     @default(now())
+  prixVente       Decimal      @db.Decimal(10, 2)
+  modePaiement    ModePaiement
+  notes           String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  vehicule        Vehicule     @relation(fields: [vehiculeId], references: [id])
+  client          User         @relation("ClientVentes", fields: [clientId], references: [id])
+  commercial      User         @relation("CommercialVentes", fields: [commercialId], references: [id])
 }

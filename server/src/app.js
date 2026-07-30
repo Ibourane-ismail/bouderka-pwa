@@ -44,6 +44,7 @@ app.use('/api/vehicules', require('./routes/vehicule.routes'));
 app.use('/api/rdv', require('./routes/rdv.routes'));
 app.use('/api/plages', require('./routes/plage.routes'));
 app.use('/api/testdrive', require('./routes/testdrive.routes'));
+app.use('/api/ventes', require('./routes/vente.routes'));
 app.use('/api/entretien', require('./routes/entretien.routes'));
 app.use('/api/notifications', require('./routes/notification.routes'));
 app.use('/api/clients', require('./routes/client.routes'));

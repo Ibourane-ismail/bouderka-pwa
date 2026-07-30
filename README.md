@@ -15,11 +15,12 @@
 - [Technologies](#3-technologies-utilisées)
 - [Architecture](#4-architecture-du-projet)
 - [Installation](#5-installation)
-- [Variables d'environnement](#6-variables-denvironnement)
-- [Comptes de démonstration](#7-comptes-de-démonstration)
-- [Structure du projet](#8-structure-du-projet)
-- [Captures d'écran](#9-captures-décran)
-- [Fonctionnalités futures](#10-fonctionnalités-futures)
+- [Tests automatisés](#6-tests-automatisés)
+- [Variables d'environnement](#7-variables-denvironnement)
+- [Comptes de démonstration](#8-comptes-de-démonstration)
+- [Structure du projet](#9-structure-du-projet)
+- [Captures d'écran](#10-captures-décran)
+- [Fonctionnalités futures](#11-fonctionnalités-futures)
 - [Auteur](#auteur)
 - [Licence](#-licence)
 
@@ -59,6 +60,7 @@ Bouderka SARL est une plateforme web moderne conçue pour une concession automob
 - **Catalogue public** : consultation par marque, recherche, pagination, fiche véhicule détaillée (galerie avec visionneuse plein écran, véhicules similaires).
 - **Rendez-vous** : prise de rendez-vous par le client, calcul des créneaux libres, confirmation/refus par le Chef d'atelier, gestion des plages horaires bloquées.
 - **Test Drive** : demande d'essai par le client, approbation/refus par le Commercial.
+- **Ventes** : enregistrement d'une vente par le Commercial (véhicule, client, CIN, mode de paiement), passage automatique du véhicule au statut Vendu, notification client, statistiques de chiffre d'affaires pour l'Administrateur.
 - **Historique d'entretien** : suivi des interventions par véhicule, alertes de vidange et de contrôle technique à venir.
 - **Notifications** : notification automatique du client lorsqu'un rendez-vous ou un test drive est confirmé/approuvé ou refusé, avec liste des notifications et compteur de notifications non lues.
 - **Tableaux de bord** : statistiques par rôle (véhicules, rendez-vous, clients, test drives).
@@ -73,12 +75,15 @@ Bouderka SARL est une plateforme web moderne conçue pour une concession automob
 
 | Catégorie | Technologies |
 |---|---|
-| **Frontend** | React 18, Vite 5, React Router DOM 6, Tailwind CSS 3, Axios, React Hook Form, React Hot Toast, Headless UI, Lucide React |
+| **Frontend** | React 18, Vite 5, React Router DOM 6, Tailwind CSS 3, Axios, React Hot Toast, Headless UI, Lucide React |
 | **Backend** | Node.js, Express 4, Prisma ORM 5 |
 | **Base de données** | MySQL |
 | **Authentification** | JSON Web Token (`jsonwebtoken`), cookies `httpOnly`, hachage des mots de passe (`bcryptjs`) |
 | **Sécurité & validation** | Helmet, CORS, express-rate-limit, express-validator |
-| **Outils** | ESLint, Prettier, Nodemon, Prisma CLI |
+| **Outils (frontend)** | ESLint, Prettier |
+| **Outils (backend)** | Nodemon, Prisma CLI, Jest, Supertest |
+
+⚠️ ESLint et Prettier sont installés côté `client/` (scripts `npm run lint` / `npm run format`) mais **aucun fichier de configuration** (`.eslintrc`, `eslint.config.js`, `.prettierrc`) n'est présent dans le projet. En l'état, `npm run lint` échoue avec *"ESLint couldn't find a configuration file"* ; `npm run format` fonctionne (Prettier utilise ses réglages par défaut) mais le code n'est pas formaté de façon homogène, donc rien n'indique qu'il ait été appliqué systématiquement. Le `server/` ne dispose d'aucun outil de lint/format.
 
 ---
 
@@ -105,12 +110,15 @@ Application React organisée par rôle et par responsabilité :
 ### `server/`
 API REST organisée en couches :
 - `src/routes/` — définition des routes Express et validation des entrées (`express-validator`).
-- `src/controllers/` — logique métier de chaque module (véhicules, rendez-vous, test drives, entretiens, notifications, clients, plages bloquées, authentification).
+- `src/controllers/` — logique métier de chaque module (véhicules, rendez-vous, test drives, ventes, entretiens, notifications, clients, plages bloquées, authentification).
 - `src/middlewares/` — middleware d'authentification JWT et de contrôle des rôles.
+- `src/config/prisma.js` — instance unique de `PrismaClient`, partagée par tous les contrôleurs (remplacée par un mock dans les tests).
 - `src/utils/` — utilitaires partagés (formatage de réponse API standardisé).
+- `src/app.js` — configuration de l'application Express (middlewares globaux, montage des routes, gestion d'erreurs), sans démarrage du serveur.
+- `server.js` — point d'entrée : importe `src/app.js` et démarre l'écoute (`app.listen`).
 - `prisma/schema.prisma` — modèle de données et configuration de la base MySQL.
 - `prisma/migrations/` — historique des migrations de schéma.
-- `server.js` — point d'entrée de l'application (middlewares globaux, montage des routes, gestion d'erreurs).
+- `tests/` — configuration Jest (mock Prisma, variables d'environnement de test) et utilitaires partagés entre les suites de tests.
 
 ---
 
@@ -174,7 +182,29 @@ L'application est accessible sur `http://localhost:5173` (le serveur de dévelop
 
 ---
 
-## 6. Variables d'environnement
+## 6. Tests automatisés
+
+Le backend dispose d'une suite de tests automatisés (Jest + Supertest), exécutée contre l'application Express réelle (`src/app.js`) mais avec Prisma entièrement mocké (`jest-mock-extended`) : aucune base de données réelle n'est sollicitée pendant les tests.
+
+**Lancer les tests** (depuis `server/`) :
+```bash
+npm test
+```
+
+**État actuel : 4 fichiers, 12 tests, tous passants.**
+
+| Fichier | Ce qui est testé |
+|---|---|
+| `auth.test.js` | Inscription (rôle CLIENT par défaut), doublon d'email (409), connexion valide/invalide (401), accès `/me` sans cookie (401) |
+| `roles.test.js` | Contrôle d'accès par rôle : un CLIENT est bloqué en création de véhicule et sur la liste des clients réservée à l'Administrateur (403) |
+| `rdv.test.js` | Création d'un rendez-vous pour soi-même, refus de création pour un autre client (403), confirmation/refus par le Chef d'atelier avec notification créée |
+| `testdrive.test.js` | Approbation d'une demande d'essai par le Commercial avec notification créée |
+
+⚠️ Modules **non couverts** par des tests automatisés à ce jour : véhicules, entretiens, plages bloquées, notifications, clients, ventes. Aucun test frontend n'est configuré (pas de Jest/Vitest/React Testing Library côté `client/`).
+
+---
+
+## 7. Variables d'environnement
 
 Variables définies dans `.env.example` (à copier vers `server/.env`) :
 
@@ -191,7 +221,7 @@ Variables définies dans `.env.example` (à copier vers `server/.env`) :
 
 ---
 
-## 7. Comptes de démonstration
+## 8. Comptes de démonstration
 
 Le projet ne fournit aucun compte de démonstration préconfiguré (aucun script d'amorçage/seed n'est présent). Pour tester l'application :
 - Créer un compte via la page d'inscription publique (`/register`) — le rôle attribué par défaut est `CLIENT`.
@@ -199,7 +229,7 @@ Le projet ne fournit aucun compte de démonstration préconfiguré (aucun script
 
 ---
 
-## 8. Structure du projet
+## 9. Structure du projet
 
 ```
 bouderka-pwa/
@@ -228,17 +258,20 @@ bouderka-pwa/
     │   ├── schema.prisma
     │   └── migrations/
     ├── src/
+    │   ├── config/
     │   ├── controllers/
     │   ├── middlewares/
     │   ├── routes/
-    │   └── utils/
+    │   ├── utils/
+    │   └── app.js
+    ├── tests/
     ├── server.js
     └── package.json
 ```
 
 ---
 
-## 9. Captures d'écran
+## 10. Captures d'écran
 
 **Accueil**
 ![Accueil](docs/screenshots/accueil.png)
@@ -263,7 +296,7 @@ bouderka-pwa/
 
 ---
 
-## 10. Fonctionnalités futures
+## 11. Fonctionnalités futures
 
 Pistes d'évolution cohérentes avec le périmètre actuel du projet :
 
